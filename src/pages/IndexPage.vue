@@ -1,36 +1,33 @@
 <template>
-  <q-page class="flex flex-center">
-    <img
-      alt="Quasar logo"
-      src="~assets/quasar-logo-vertical.svg"
-      style="width: 200px; height: 200px"
-    >
+  <q-page padding class="flex flex-center">
+    test
   </q-page>
 </template>
 
 <script setup>
-import { reactive, onBeforeMount } from 'vue';
-import { useCtbNwfbStore } from 'stores/ctb-nwfb-store';
-import { useFetch } from 'src/composables';
+import { reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { useOption } from 'src/constants';
 
-const store = useCtbNwfbStore();
-const { fetch, isLoading } = useFetch();
+// use router
+const router = useRouter();
 
+// get global option
+const { regions } = useOption();
+
+// page data
 const data = reactive({
-  companyInfo: () => null,
+  title: '選擇地區',
+  regions: regions.slice(),
 });
 
-// get company info from API
-function fetchCompanyInfo() {
-  fetch(store.getCompanyInfo, {
-    companyId: 'ctb'
-  }, 
-  (response) => {
-    console.log(response);
+// go to region page
+function goToRegionPage(region) {
+  router.push({ 
+    name: 'region', 
+    params: { 
+      region: region.value, 
+    } 
   });
 }
-
-// on before mount hook
-onBeforeMount(() => {
-});
 </script>

@@ -14,7 +14,7 @@ function handleResponse(response) {
   return Promise.resolve(response.data.data);
 }
 
-export const useCtbNwfbStore = defineStore('ctb-nwfb', {
+export const useKmbLwbStore = defineStore('kmb-lwb', {
   state: () => ({
   }),
   getters: {
@@ -33,7 +33,7 @@ export const useCtbNwfbStore = defineStore('ctb-nwfb', {
     // get bus routes from API
     async getBusRoutes(companyId) {
       try {
-        const response = await api.get(`route/${companyId}`);
+        const response = await api.get(`${companyId}/route`);
         return handleResponse(response);
       } catch (error) {
         return Promise.reject(error);

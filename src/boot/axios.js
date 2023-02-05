@@ -10,28 +10,42 @@ import axios from 'axios';
 const api = axios.create();
 
 export default boot(({ app, router }) => {
-  // set default API URL based on the route
+  // set default API URL based on the route params
   router.beforeEach((to, from) => {
-    if (to.meta.companies?.includes(to.params.companyId.toLowerCase())) {
-      api.defaults.baseURL = process.env.API.CTB_NWFB;
+    const companyId = ('companyId' in to.params) 
+      ? to.params.companyId.toUpperCase() 
+      : null;
+      
+    if (companyId) {
+      const isValidCompanyId = (companyId in process.env.API);
+
+      if (isValidCompanyId) {
+        api.defaults.baseURL = process.env.API[companyId];
+      } else {
+        router.push({ path: '/404' });
+      }
     }
   });
 
-  // set default API URL based on the route
-  // const apiKey = {
-  //   ctb: 'CTB_NWFB',
-  //   nwfb: 'CTB_NWFB',
-  //   kmb: 'KMB',
-  // };
+  // Add a request interceptor
+  axios.interceptors.request.use((config) => {
+    // Do something before request is sent
+    return config;
+  }, function (error) {
+    // Do something with request error
+    return Promise.reject(error);
+  });
 
-  // const routeParams = window.location.pathname.split('/');
-  // if (routeParams.length > 2) {
-  //   const companyId = routeParams[2];
-  //   const getApiKey = apiKey[companyId];
-  //   if (getApiKey) {
-  //     api.defaults.baseURL = process.env.API[getApiKey];
-  //   }
-  // }
+  // Add a response interceptor
+  axios.interceptors.response.use((response) => {
+    // Any status code that lie within the range of 2xx cause this function to trigger
+    // Do something with response data
+    return response;
+  }, function (error) {
+    // Any status codes that falls outside the range of 2xx cause this function to trigger
+    // Do something with response error
+    return Promise.reject(error);
+  });
 
   // get route params through navigation guards
   // for use inside Vue files (Options API) through this.$axios and this.$api

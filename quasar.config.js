@@ -30,8 +30,8 @@ module.exports = configure(function (/* ctx */) {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli/boot-files
     boot: [
-      'route-middleware',
       'i18n',
+      'route-middleware',
       'axios',
     ],
 
@@ -44,7 +44,7 @@ module.exports = configure(function (/* ctx */) {
     extras: [
       // 'ionicons-v4',
       // 'mdi-v5',
-      // 'fontawesome-v6',
+      'fontawesome-v6',
       // 'eva-icons',
       // 'themify',
       // 'line-awesome',
@@ -72,8 +72,11 @@ module.exports = configure(function (/* ctx */) {
       // analyze: true,
       env: {
         API: {
-          CTB_NWFB: 'https://rt.data.gov.hk/v1.1/transport/citybus-nwfb/',
-          KMB: 'https://data.etabus.gov.hk/',
+          CTB: 'https://rt.data.gov.hk/v1.1/transport/citybus-nwfb/',
+          NWFB: 'https://rt.data.gov.hk/v1.1/transport/citybus-nwfb/',
+          KMB: 'https://data.etabus.gov.hk/v1/transport/',
+          // https://rt.data.gov.hk/v1/transport/mtr/bus/getSchedule
+          // https://rt.data.gov.hk/v2/transport/nlb/route.php?action=list
         },
       },
       // rawDefine: {}
@@ -120,6 +123,7 @@ module.exports = configure(function (/* ctx */) {
       plugins: [
         'Notify',
         'Loading',
+        'Cookies',
       ],
       cssAddon: true,
     },

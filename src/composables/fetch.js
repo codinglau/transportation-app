@@ -7,8 +7,8 @@ export default function useFetch() {
   const isLoading = ref(false);
 
   /**
-   * @typedef {Object} defaultConfig - default loading configuration
-   * @property {Boolean} enableLoading - default is true; toggle loading state
+   * @type {Object} defaultConfig - default loading configuration
+   * @property {Boolean} enableLoading - default true; toggle loading state
    * @property {Boolean} renderLoadingSpinner - only works when enableLoading is true; render loading spinner when true
    */
   const defaultConfig = {
@@ -42,23 +42,23 @@ export default function useFetch() {
     const { action, request, config } = dispatch();
 
     // merge default config with user config
-    const mergedConfig = (typeof config === 'object') 
-      ? Object.assign({}, defaultConfig, config)
-      : Object.assign({}, defaultConfig);
+    const { 
+      enableLoading, 
+      renderLoadingSpinner 
+    } = Object.assign({}, defaultConfig, config);
 
     try {
       // turn on loading if enabled
-      if (mergedConfig.enableLoading) {
+      if (enableLoading) {
         isLoading.value = true;
 
         // render loading spinner if enabled
-        if (mergedConfig.renderLoadingSpinner) Loading.show();
+        if (renderLoadingSpinner) Loading.show();
       }
-      
       
       // throw an error if action is undefined
       if (action === undefined) {
-        throw new Error('action is missing.');
+        throw new Error('Missing action');
 
       // otherwise, perform action
       } else {
@@ -85,9 +85,9 @@ export default function useFetch() {
     
     // turn off loading and hide loading spinner
     } finally {
-      if (mergedConfig.enableLoading) {
+      if (enableLoading) {
         isLoading.value = false;
-        if (mergedConfig.renderLoadingSpinner) Loading.hide();
+        if (renderLoadingSpinner) Loading.hide();
       }
     }
   }

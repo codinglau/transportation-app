@@ -1,1 +1,14 @@
 // app global css in SCSS form
+
+/** 
+ * 1. render pointer cursor on clickable elements
+ * 2. scale up on hover
+ */
+.clickable {
+  cursor: pointer;
+  transition-duration: .3s;
+  
+  &:hover {
+    transform: scale(1.02);
+  }
+}

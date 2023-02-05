@@ -1,37 +1,74 @@
-
 const routes = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [
-      { 
-        path: '',
-        name: 'home', 
-        component: () => import('pages/IndexPage.vue'), 
-      },
-    ],
-  },
-  {
-    path: '/:region',
-    redirect: { name: 'region' },
+    props: (route) => ({
+        ...route.params,
+        ...route.props,
+    }),
     children: [
       {
         path: '',
-        name: 'region',
-        component: () => import('src/pages/Region.vue'),
-        meta: {
-          regions: [
-            { label: '香港', value: 'hk' },
-          ],
-        },
+        redirect: (to) => ({
+          name: 'home',
+          params: {
+            lang: to.params.lang || 'tc', // default language 'tc'
+          },
+        }),
       },
       {
-        path: ':companyId',
-        name: 'company',
-        component: () => import('pages/bus/CompanyPage.vue'),
-        meta: {
-          companuIds: ['ctb', 'nwfb'],
-        }
+        path: ':lang',
+        children: [
+          {
+            path: '',
+            name: 'home',
+            redirect: (to) => ({
+              name: 'bus.index',
+              params: {
+                lang: to.params.lang,
+                companyId: to.params.companyId || 'nwfb', // default company 'nwfb'
+              },
+            }),
+          },
+          {
+            path: 'bus/:companyId',
+            name: 'bus.index',
+            component: () => import('pages/bus/IndexPage.vue'),
+            props: (route) => ({ 
+              ...route.params,
+            }),
+          },
+          // {
+          //   path: ':region',
+          //   props: (route) => ({ 
+          //     region: route.params.region,
+          //     companyId: route.params.companyId,
+          //   }),
+          //   children: [
+          //     {
+          //       path: '',
+          //       name: 'region',
+          //       redirect: (to) => ({
+          //         name: 'bus.routeList',
+          //         params: {
+          //           lang: to.params.lang,
+          //           region: to.params.region,
+          //           companyId: to.params.companyId || 'nwfb',
+          //         },
+          //       }),
+          //     },
+          //   ],
+          // },
+          {
+            path: 'settings',
+            name: 'settings',
+            component: () => import('pages/SettingPage.vue'),
+            props: (route) => ({
+              ...route.params,
+              renderReturnHomeBtn: true,
+            }),
+          },
+        ],
       },
     ],
   },
