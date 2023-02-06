@@ -6,7 +6,14 @@
     <!-- drawer header -->
     <q-toolbar class="bg-primary text-white">
       <q-avatar icon="fa-solid fa-bus" />
-      <q-toolbar-title>巴士路線</q-toolbar-title>
+      <q-toolbar-title>{{ t(data.title) }}</q-toolbar-title>
+
+      <q-btn flat round
+          icon="fa-solid fa-gear"
+          :aria-label="t(data.dialog.btn.label)"
+          @click="data.dialog.isOpen = true">
+        <q-tooltip>{{ t(data.dialog.btn.label) }}</q-tooltip>
+      </q-btn>
     </q-toolbar>
 
     <!-- drawer content -->
@@ -18,7 +25,7 @@
       <div v-else class="flex flex-center">
         <q-chip square 
             icon="warning"
-            label="Oops...找不到相關巴士路線資料"
+            :label="t(data.noDataLabel)"
             color="transparent"
             text-color="primary" />
       </div>
@@ -26,8 +33,8 @@
 
     <!-- drawer search -->
     <q-input outlined dense clearable
-        v-model.trim="searchText"
-        placeholder="關鍵字搜尋巴士路線"
+        v-model.trim="data.searchField.value"
+        :placeholder="t(data.searchField.placeholder)"
         clear-icon="close"
         debounce="300">
       <template #prepend>
@@ -40,14 +47,17 @@
         class="bg-grey-2"
         :options="companies" />
   </q-drawer>
+
+  <component :is="data.dialog.name" v-model="data.dialog.isOpen" />
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { Bus } from 'components';
+import { reactive, computed } from 'vue';
+import { Bus, Dialog } from 'components';
+import { useI18n } from 'vue-i18n';
 
-// search text
-const searchText = ref('');
+// use i18n
+const { t } = useI18n();
 
 // define props
 const props = defineProps({
@@ -74,13 +84,31 @@ const props = defineProps({
 // define emits
 defineEmits(['update:modelValue']);
 
+// data context
+const data = reactive({
+  title: 'layout.drawer.title',
+  dialog: {
+    name: Dialog.SettingDialog,
+    isOpen: false,
+    btn: {
+      label: 'layout.settings',
+    },
+  },
+  noDataLabel: 'layout.drawer.noData', 
+  searchField: {
+    value: '',
+    placeholder: 'layout.drawer.search',
+  },
+});
+
 /** computed properties */
+// filter routes
 const filteredRoutes = computed(() => {
-  if (!searchText.value) return props.routes;
+  if (!data.searchField.value) return props.routes;
 
   return props.routes.filter((r) => {
     const target = [r.id, r.origin, r.destination].join(' ').toUpperCase();
-    return target.includes(searchText.value.toUpperCase());
+    return target.includes(data.searchField.value.toUpperCase());
   });
 });
 

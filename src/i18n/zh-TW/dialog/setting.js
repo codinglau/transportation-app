@@ -23,7 +23,7 @@ export default {
     },
     dataOwnership: {
       caption: '數據所有權',
-      label: '數據由香港特別行政區政府擁有。',
+      label: '數據由香港特別行政特區政府擁有。',
     },
     createdBy: {
       caption: '創建者',

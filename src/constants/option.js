@@ -21,12 +21,12 @@ export default function useOption() {
         color: 'teal',
         imgSrc: 'https://upload.wikimedia.org/wikipedia/zh/thumb/9/95/Citybus.svg/177px-Citybus.svg.png',
       },
-      { 
-        value: 'mtr', 
-        label: 'constant.busCompany.mtr',
-        color: 'red',
-        imgSrc: 'https://upload.wikimedia.org/wikipedia/zh/8/8f/MTR_Logo_with_text.png',
-      },
+      // { 
+      //   value: 'mtr', 
+      //   label: 'constant.busCompany.mtr',
+      //   color: 'red',
+      //   imgSrc: 'https://upload.wikimedia.org/wikipedia/zh/8/8f/MTR_Logo_with_text.png',
+      // },
       { 
         value: 'nlb', 
         label: 'constant.busCompany.nlb',

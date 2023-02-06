@@ -7,14 +7,14 @@
             icon="menu"
             aria-label="Menu"
             @click="toggleLeftDrawer" />
-        <q-toolbar-title class="text-center">{{ data.title }}</q-toolbar-title>
-        <!-- <q-btn flat dense
-            v-if="renderReturnHomeBtn"
-            icon="fa-solid fa-house"
-            aria-label="Home"
-            :to="{ name: 'home' }">
-          <q-tooltip>回首頁</q-tooltip>
-        </q-btn> -->
+        <q-toolbar-title class="text-center">
+          {{ t(data.title) }}
+        </q-toolbar-title>
+        <q-btn flat round
+            icon="fa-solid fa-rotate"
+            aria-label="Refresh Page">
+          <q-tooltip>刷新資料</q-tooltip>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -40,8 +40,6 @@
           </q-btn-dropdown>
           <q-route-tab :label="t('layout.footer.settings')" icon="settings" />
         </q-tabs>
-        <!-- <Bus.CompanyTabs class="full-width" align="justify"
-            :options="data.tab.options" /> -->
       </q-toolbar>
     </q-footer>
 
@@ -49,7 +47,7 @@
     <Layout.DesktopDrawer 
         v-model="leftDrawerOpen"
         :companies="data.tab.options"
-        :routes="data.busRoute.options"
+        :routes="busRoutes"
         :isLoading="isLoading"
         class="gt-sm" />
 
@@ -63,15 +61,12 @@
 <script setup>
 import { useMeta } from 'quasar';
 import { ref, reactive, computed, onBeforeMount, watch } from 'vue';
-import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { Bus, Layout } from 'components';
 import { useFetch } from 'src/composables';
 import { useBusService } from 'src/services';
 import { useOption } from 'src/constants';
 
-// use route
-const route = useRoute();
 // use i18n
 const { t } = useI18n();
 // use composables
@@ -91,24 +86,15 @@ const props = defineProps({
   companyId: {
     type: String,
   },
-  renderDrawer: {
-    type: Boolean,
-    default: true,
-  },
-  renderReturnHomeBtn: {
-    type: Boolean,
-    default: true,
-  },
 });
 
 // data
 const data = reactive({
-  title: '交通資訊 APP',
+  title: 'layout.header.title',
   tab: {
     // value: 'nwfb',
     options: option.busCompanies.map((bc) => ({
       ...bc,
-      label: t(bc.label),
       to: {
         name: 'bus.index',
         params: {
@@ -126,9 +112,6 @@ const data = reactive({
   }
 });
 
-// computed properties
-
-
 /** handle drawer */
 const leftDrawerOpen = ref(false);
 
@@ -143,6 +126,12 @@ watch(() => props.companyId, (newCId) => {
 });
 
 // fetch bus routes
+const busRoutes = computed(() => data.busRoute.options.map((r) => ({
+  ...r,
+  origin: r.origin[props.lang],
+  destination: r.destination[props.lang],
+})));
+
 function fetchBusRoutes(companyId) {
   fetch(() => ({
     action: getBusRoutes,
@@ -152,11 +141,7 @@ function fetchBusRoutes(companyId) {
     },
   }),
   (routes) => {
-    data.busRoute.options = routes.map((r) => ({
-      ...r,
-      origin: r.origin[props.lang],
-      destination: r.destination[props.lang],
-    }));
+    data.busRoute.options = routes.slice();
   });
 }
 
@@ -180,5 +165,4 @@ onBeforeMount(() => {
     flex: 1 1 auto; // fill remaining space
   }
 }
-
 </style>

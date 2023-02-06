@@ -1,36 +1,59 @@
 <template>
-  <q-page>
-    <q-tabs v-model="data.tab.value" class="fixed-top">
-      <q-tab
-          v-for="tab in data.tab.options"
-          :key="tab.value"
-          :name="tab.value"
-          :label="t(tab.label)" />
-    </q-tabs>
-    <BusComponent.RouteList
-        :rows="data.routes"
-        :isLoading="isLoading" />
+  <q-page class="flex flex-center">
+    <q-card flat class="gt-sm">
+      <q-card-section class="column items-center">
+        <q-avatar 
+            icon="fa-solid fa-route"
+            text-color="primary"
+            size="8rem" />
+        <q-chip 
+            icon="info" 
+            label="尚未選擇巴士路線"
+            color="transparent"
+            text-color="primary"
+            size="xl" />
+      </q-card-section>
+    </q-card>
+    <q-card class="lt-md fit">
+      <q-scroll-area class="fit">
+        <Bus.RouteListSkeleton v-if="isLoading" />
+        <Bus.RouteList 
+            v-else-if="hasRoutes" 
+            :routes="filteredRoutes" />
+        <div v-else class="flex flex-center">
+          <q-chip square 
+              icon="warning"
+              label="No data available."
+              color="transparent"
+              text-color="primary" />
+        </div>
+      </q-scroll-area>
+    </q-card>
   </q-page>
 </template>
 
 <script setup>
-import { useQuasar } from 'quasar';
-import { computed, reactive, onBeforeMount } from 'vue';
+import { computed, reactive, onBeforeMount, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import BusComponent from 'components/bus';
+import { Bus } from 'components';
 import { useFetch } from 'src/composables';
-import BusService from 'src/services/bus';
+import { useBusService } from 'src/services';
 import { useOption } from 'src/constants';
 
-const $q = useQuasar();
+// use i18n
 const { t } = useI18n();
+// use composables
 const { fetch, isLoading } = useFetch();
+// use bus service
+const { getBusRoutes } = useBusService();
+// use global option
 const option = useOption();
 
 // define props
 const props = defineProps({
-  region : {
+  lang: {
     type: String,
+    default: 'tc',  // default to traditional chinese
     required: true,
   },
   companyId: {
@@ -39,31 +62,56 @@ const props = defineProps({
   },
 });
 
-// define reactive data
+// data
 const data = reactive({
-  tab: {
-    value: 'nwfb',
-    options: computed(() => option[props.region].busCompanies),
+  title: 'layout.header.title',
+  busRoute: {
+    value: '',
+    options: [],
   },
-  routes: [],
+  noDataLabel: '',
+  searchField: {
+    value: '',
+    placeholder: 'layout.drawer.search',
+  },
 });
 
-const service = BusService[props.companyId];
+/** handle bus data */
+// fetch bus routes when company id changed
+watch(() => props.companyId, (newCId) => {
+  fetchBusRoutes(newCId);
+});
 
-// fetch bus routes
-function fetchBusRoutes() {
+/** computed properties */
+// filter routes
+const filteredRoutes = computed(() => {
+  if (!data.searchField.value) return data.busRoute.options;
+
+  return data.busRoute.options.filter((r) => {
+    const target = [r.id, r.origin, r.destination].join(' ').toUpperCase();
+    return target.includes(data.searchField.value.toUpperCase());
+  });
+});
+
+  // check if there are any routes
+const hasRoutes = computed(() => filteredRoutes.value.length > 0);
+
+function fetchBusRoutes(companyId) {
   fetch(() => ({
-    action: service.getRoutes,
-    request: props.companyId,
+    action: getBusRoutes,
+    request: companyId,
     config: {
       renderLoadingSpinner: false,
-    }
-  }), (response) => {
-    data.routes = response.slice();
+    },
+  }),
+  (routes) => {
+    data.busRoute.options = routes.slice();
   });
 }
 
+// before mount
 onBeforeMount(() => {
-  fetchBusRoutes();
+  fetchBusRoutes(props.companyId);
 });
 </script>
+
