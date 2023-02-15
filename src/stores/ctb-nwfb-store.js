@@ -21,7 +21,7 @@ export const useCtbNwfbStore = defineStore('ctb-nwfb', {
   },
   actions: {
     // get bus company information from API
-    async getBusCompanyInfo({ companyId }) {
+    async getBusCompanyInfo(companyId) {
       try {
         const response = await api.get(`company/${companyId}`);
         return handleResponse(response);

@@ -1,4 +1,5 @@
 export default {
+  title: 'Setting',
   setting: {
     language: {
       label: 'Language',

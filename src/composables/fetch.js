@@ -17,57 +17,48 @@ export default function useFetch() {
   };
 
   /**
-   * @param {() => ({ action: Function, request?: Object, config?: Object })} dispatch
-   * @param {Function} handleSuccess
-   * @param {Function} handleError
-   * @example
-   * fetch(() => ({
-   *  action: store.getUsers, 
-   *  request: { page: 1, limit: 10 },
-   *  config: { enableLoading: true, renderLoadingSpinner: true },
-   * }), (response) => {
-   *  users = response.data;
-   *  return 'Users fetched successfully.';
-   * }, (error) => {
-   *  console.log(error);
-   *  return 'Failed to fetch users.';
-   * }); 
+   * @param {Function} action
+   * @param {{[x: string]: string}} request
+   * @param {{ 
+   *  config?: Object,
+   *  onSuccess?: Function,
+   *  onError?: Function,
+   *  onFinally?: Function, 
+   * }} context
    */
   async function fetch(
-    dispatch, 
-    handleSuccess, 
-    handleError = () => null,
+    action, 
+    request,
+    { config, onSuccess, onError, onFinally }, 
   ) {
-    // dispatch action
-    const { action, request, config } = dispatch();
-
-    // merge default config with user config
+    // merge default config with the config provided by the user
     const { 
       enableLoading, 
       renderLoadingSpinner 
     } = Object.assign({}, defaultConfig, config);
-
-    try {
-      // turn on loading if enabled
-      if (enableLoading) {
-        isLoading.value = true;
-
+    
+    try {      
+      if (action === undefined || typeof action !== 'function') {
+        // throw an error if action is undefined
+        throw new Error('Missing action or action is not a function.');
+      } else if (typeof action === 'function') {
+        // turn on loading if enabled
         // render loading spinner if enabled
-        if (renderLoadingSpinner) Loading.show();
-      }
-      
-      // throw an error if action is undefined
-      if (action === undefined) {
-        throw new Error('Missing action');
-
-      // otherwise, perform action
-      } else {
-        const response = request ? await action(request) : await action();
+        if (enableLoading) {
+          isLoading.value = true;
+          if (renderLoadingSpinner) Loading.show();
+        }
+        
+        // when action is a function
+        // call action with request if request is provided
+        const response = await action(request);
         
         // handle success
-        if (response && typeof handleSuccess === 'function') {
-          const { type, message } = handleSuccess(response);
-          if (message) Notify.create({ type, message });
+        if (typeof onSuccess === 'function') {
+          const successMsg = onSuccess(response);
+          if (successMsg) {
+            Notify.create({ type: 'positive', message: successMsg });
+          }
         }
       }
 
@@ -75,8 +66,8 @@ export default function useFetch() {
     } catch (error) {
       let message = '';
       
-      if (typeof handleError === 'function') {
-        message = handleError(error);
+      if (typeof onError === 'function') {
+        message = onError(error);
       } else {
         message = error.message;
       }
@@ -88,6 +79,9 @@ export default function useFetch() {
       if (enableLoading) {
         isLoading.value = false;
         if (renderLoadingSpinner) Loading.hide();
+      }
+      if (typeof onFinally === 'function') {
+        onFinally();
       }
     }
   }

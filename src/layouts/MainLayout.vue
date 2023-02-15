@@ -26,19 +26,11 @@
             aria-label="Menu"
             @click="toggleLeftDrawer" />
         
-        <q-tabs class="full-width">
-          <q-btn-dropdown auto-close stretch flat label="巴士">
-            <q-list>
-              <q-item clickable @click="tab = 'movies'">
-                <q-item-section>Movies</q-item-section>
-              </q-item>
-
-              <q-item clickable @click="tab = 'photos'">
-                <q-item-section>Photos</q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
-          <q-route-tab :label="t('layout.footer.settings')" icon="settings" />
+        <q-tabs class="full-width" align="justify">
+          <q-tab icon="directions_bus" />
+          <q-tab icon="search" />
+          <q-tab icon="refresh" />
+          <q-tab icon="settings" />
         </q-tabs>
       </q-toolbar>
     </q-footer>
@@ -46,33 +38,29 @@
     <!-- drawer -->
     <Layout.DesktopDrawer 
         v-model="leftDrawerOpen"
-        :companies="data.tab.options"
+        :companies="data.busCompany.options"
         :routes="busRoutes"
-        :isLoading="isLoading"
+        :isLoading="data.busRoute.isLoading"
         class="gt-sm" />
 
     <!-- main panel -->
     <q-page-container>
-      <router-view />
+      <router-view @data-bus-routes="getBusRoutes" />
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup>
-import { useMeta } from 'quasar';
-import { ref, reactive, computed, onBeforeMount, watch } from 'vue';
+import { useMeta, useQuasar } from 'quasar';
+import { ref, reactive, computed, onBeforeMount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Bus, Layout } from 'components';
-import { useFetch } from 'src/composables';
-import { useBusService } from 'src/services';
 import { useOption } from 'src/constants';
 
+// use quasar
+const $q = useQuasar();
 // use i18n
 const { t } = useI18n();
-// use composables
-const { fetch, isLoading } = useFetch();
-// use bus service
-const { getBusRoutes } = useBusService();
 // use global option
 const option = useOption();
 
@@ -91,12 +79,12 @@ const props = defineProps({
 // data
 const data = reactive({
   title: 'layout.header.title',
-  tab: {
+  busCompany: {
     // value: 'nwfb',
     options: option.busCompanies.map((bc) => ({
       ...bc,
       to: {
-        name: 'bus.index',
+        name: 'bus.routes',
         params: {
           companyId: bc.value,
         },
@@ -108,6 +96,7 @@ const data = reactive({
   },
   busRoute: {
     value: '',
+    isLoading: false,
     options: [],
   }
 });
@@ -120,39 +109,27 @@ function toggleLeftDrawer() {
 }
 
 /** handle bus data */
-// fetch bus routes when company id changed
-watch(() => props.companyId, (newCId) => {
-  fetchBusRoutes(newCId);
-});
-
-// fetch bus routes
+// computed bus routes
 const busRoutes = computed(() => data.busRoute.options.map((r) => ({
   ...r,
   origin: r.origin[props.lang],
   destination: r.destination[props.lang],
 })));
 
-function fetchBusRoutes(companyId) {
-  fetch(() => ({
-    action: getBusRoutes,
-    request: companyId,
-    config: {
-      renderLoadingSpinner: false,
-    },
-  }),
-  (routes) => {
-    data.busRoute.options = routes.slice();
-  });
+// get bus routes
+function getBusRoutes(cxt) {
+  for (const key in cxt) {
+    data.busRoute[key] = cxt[key];
+  }
 }
 
 // set meta
 useMeta(() => ({
-  title: data.title,
+  title: t(data.title),
 }));
 
 // before mount
 onBeforeMount(() => {
-  fetchBusRoutes(props.companyId);
 });
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <q-item clickable class="text-weight-bold">
+  <q-item clickable class="text-weight-bold" :to="viewRoute">
     <q-item-section avatar>
       <q-btn unelevated round
           :label="route.id" 
@@ -21,10 +21,23 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue';
+
+// define props
+const props = defineProps({
   route: {
     type: Object,
     required: true,
   },
+});
+
+const viewRoute = computed(() => {
+  return {
+    name: 'bus.route',
+    params: {
+      routeId: props.route.id,
+      direction: 'inbound',
+    },
+  };
 });
 </script>

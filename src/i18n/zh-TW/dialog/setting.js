@@ -1,4 +1,5 @@
 export default {
+  title: '設定',
   setting: {
     language: {
       label: '語言',

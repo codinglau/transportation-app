@@ -32,11 +32,12 @@
     </q-scroll-area>
 
     <!-- drawer search -->
-    <q-input outlined dense clearable
+    <q-input outlined dense clearable reverse-fill-mask
         v-model.trim="data.searchField.value"
-        :placeholder="t(data.searchField.placeholder)"
         clear-icon="close"
-        debounce="300">
+        debounce="300"
+        mask="X"
+        :placeholder="t(data.searchField.placeholder)">
       <template #prepend>
         <q-icon name="search" />
       </template>
@@ -46,13 +47,14 @@
     <Bus.CompanyTabs outside-arrows 
         class="bg-grey-2"
         :options="companies" />
+    
+    <!-- setting dialog -->
+    <component :is="data.dialog.name" v-model="data.dialog.isOpen" />
   </q-drawer>
-
-  <component :is="data.dialog.name" v-model="data.dialog.isOpen" />
 </template>
 
 <script setup>
-import { reactive, computed } from 'vue';
+import { reactive, computed, markRaw } from 'vue';
 import { Bus, Dialog } from 'components';
 import { useI18n } from 'vue-i18n';
 
@@ -88,7 +90,7 @@ defineEmits(['update:modelValue']);
 const data = reactive({
   title: 'layout.drawer.title',
   dialog: {
-    name: Dialog.SettingDialog,
+    name: markRaw(Dialog.SettingDialog),
     isOpen: false,
     btn: {
       label: 'layout.settings',
