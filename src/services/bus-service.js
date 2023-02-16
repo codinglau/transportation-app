@@ -113,8 +113,8 @@ export default function useBusService() {
             const busStop = busStopResponses.find((bs) => bs.stop === rs.stop);
             return {
               ...rs,
-              name_tc: busStop.name_tc,
-              name_en: busStop.name_en,
+              tc: busStop.name_tc,
+              en: busStop.name_en,
             };
           });
       }

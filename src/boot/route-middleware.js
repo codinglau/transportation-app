@@ -25,17 +25,5 @@ export default boot(({ app, router }) => {
         };
       }
     }
-
-
-    if (to.name === 'region') {
-      // is valid region flag
-      const isValidRegion = regions.some(
-        (region) => region.value === to.params.region);
-
-      // for invalid region, redirect to home page
-      if (!isValidRegion){
-        return { name: '404' };
-      }
-    }
   });
 })

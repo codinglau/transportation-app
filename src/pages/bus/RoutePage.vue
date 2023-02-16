@@ -1,12 +1,19 @@
 <template>
-  <q-page padding class="flex flex-center">
-    {{ busRouteStops }}
+  <q-page padding>
+    <q-timeline layout="loose" color="secondary">
+      <q-timeline-entry
+          v-for="(stop, idx) in busRouteStopsByLang"
+          :key="stop.stop"
+          :title="stop.name"
+          :side="idx % 2 === 0 ? 'left' : 'right'"
+          icon="keyboard_double_arrow_down">
+      </q-timeline-entry>
+    </q-timeline>
   </q-page>
 </template>
 
 <script setup>
-import { ref, onBeforeMount } from 'vue';
-import { useOption } from 'src/constants';
+import { computed, ref, onBeforeMount } from 'vue';
 import { useFetch } from 'src/composables';
 import { useBusService } from 'src/services';
 
@@ -15,6 +22,10 @@ const { getBusRoute } = useBusService();
 
 // define props
 const props = defineProps({
+  lang: {
+    type: String,
+    required: true,
+  },
   companyId: {
     type: String,
     required: true,
@@ -31,6 +42,13 @@ const props = defineProps({
 
 // define bus route stops
 const busRouteStops = ref([]);
+// computed bus route stops by language
+const busRouteStopsByLang = computed(() => busRouteStops.value
+  .map((stop) => ({
+    ...stop,
+    name: stop[props.lang],
+  }))
+);
 
 // fetch bus routes
 function fetchBusRoute(companyId, routeId, direction) {
@@ -40,19 +58,12 @@ function fetchBusRoute(companyId, routeId, direction) {
   fetch(getBusRoute, { 
       companyId, routeId, direction 
     }, {
-      config: {
-        renderLoadingSpinner: false,
-      },
+      // config: {
+      //   renderLoadingSpinner: false,
+      // },
       onSuccess(route) {
         busRouteStops.value = route.slice();
       },
-      onFinally() {
-        // emit bus routes and loading state
-        // emit('data-bus-routes', {
-        //   options: data.busRoute.options.slice(),
-        //   isLoading: false,
-        // });
-      }
     }
   );
 }

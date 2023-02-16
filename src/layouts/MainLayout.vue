@@ -35,34 +35,43 @@
       </q-toolbar>
     </q-footer>
 
-    <!-- drawer -->
+    <!-- desktop drawer -->
     <Layout.DesktopDrawer 
         v-model="leftDrawerOpen"
         :companies="data.busCompany.options"
         :routes="busRoutes"
-        :isLoading="data.busRoute.isLoading"
+        :loading="isLoading"
         class="gt-sm" />
 
     <!-- main panel -->
     <q-page-container>
-      <router-view @data-bus-routes="getBusRoutes" />
+      <router-view :bus-routes="busRoutes" :loading="isLoading" />
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup>
 import { useMeta, useQuasar } from 'quasar';
-import { ref, reactive, computed, onBeforeMount } from 'vue';
+import { ref, reactive, computed, onBeforeMount, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Bus, Layout } from 'components';
+import { Layout } from 'components';
+import { useFetch } from 'src/composables';
+import { useBusService } from 'src/services';
 import { useOption } from 'src/constants';
 
-// use quasar
+// use q object
 const $q = useQuasar();
+// use route
+const route = useRoute();
 // use i18n
 const { t } = useI18n();
 // use global option
 const option = useOption();
+// use fetch 
+const { fetch, isLoading } = useFetch();
+// use bus service
+const { getBusRoutes } = useBusService();
 
 // define props
 const props = defineProps({
@@ -80,7 +89,6 @@ const props = defineProps({
 const data = reactive({
   title: 'layout.header.title',
   busCompany: {
-    // value: 'nwfb',
     options: option.busCompanies.map((bc) => ({
       ...bc,
       to: {
@@ -88,7 +96,7 @@ const data = reactive({
         params: {
           companyId: bc.value,
         },
-      },
+      }
     })),
   },
   footer: {
@@ -96,7 +104,6 @@ const data = reactive({
   },
   busRoute: {
     value: '',
-    isLoading: false,
     options: [],
   }
 });
@@ -110,17 +117,24 @@ function toggleLeftDrawer() {
 
 /** handle bus data */
 // computed bus routes
-const busRoutes = computed(() => data.busRoute.options.map((r) => ({
-  ...r,
-  origin: r.origin[props.lang],
-  destination: r.destination[props.lang],
-})));
+const busRoutes = computed(() => data.busRoute.options
+  .map((r) => ({
+    ...r,
+    origin: r.origin[props.lang],
+    destination: r.destination[props.lang],
+  }))
+);
 
-// get bus routes
-function getBusRoutes(cxt) {
-  for (const key in cxt) {
-    data.busRoute[key] = cxt[key];
-  }
+// fetch bus routes
+function fetchBusRoutes(companyId) {
+  fetch(getBusRoutes, { companyId }, {
+    config: {
+      renderLoadingSpinner: false,
+    },
+    onSuccess(routes) {
+      data.busRoute.options = routes.slice();
+    },
+  });
 }
 
 // set meta
@@ -128,8 +142,29 @@ useMeta(() => ({
   title: t(data.title),
 }));
 
+// fetch bus routes when company id changes
+watch(() => props.companyId, (newCID, oldCID) => {
+  if ($q.screen.gt.sm || route.name === 'bus.routes') {
+    // wait for the company id to be updated before fetching bus routes
+    setTimeout(() => {
+      fetchBusRoutes(newCID);
+    }, 100);
+  }
+}); 
+
+// fetch bus routes when screen is greater than sm
+watch(() => $q.screen.gt.sm, (value) => {
+  if (value) {
+    fetchBusRoutes(props.companyId);
+  }
+}); 
+
 // before mount
 onBeforeMount(() => {
+  if ($q.screen.gt.sm || route.name === 'bus.routes') {
+    // fetch bus routes when screen is greater than sm
+    fetchBusRoutes(props.companyId);
+  }
 });
 </script>
 

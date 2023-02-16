@@ -1,5 +1,5 @@
-// import setting from './setting.js';
+import routeList from './route-list';
 
 export default {
-  // setting,
+  routeList,
 };

@@ -1,5 +1,8 @@
 <template>
-  <q-item clickable class="text-weight-bold" :to="viewRoute">
+  <q-item clickable 
+      class="text-weight-bold" 
+      active-class="bg-grey-4"
+      :to="viewRoute">
     <q-item-section avatar>
       <q-btn unelevated round
           :label="route.id" 
@@ -31,6 +34,7 @@ const props = defineProps({
   },
 });
 
+// 
 const viewRoute = computed(() => {
   return {
     name: 'bus.route',

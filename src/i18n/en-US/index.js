@@ -4,7 +4,8 @@ import layout from './layout.js';
 import page from './page';
 
 export default {
+  page,
   constant,
   layout,
   dialog,
-}
+};

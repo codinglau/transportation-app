@@ -18,7 +18,7 @@
 
     <!-- drawer content -->
     <q-scroll-area class="drawer__content">
-      <Bus.RouteListSkeleton v-if="isLoading" />
+      <Bus.RouteListSkeleton v-if="loading" />
       <Bus.RouteList 
           v-else-if="hasRoutes" 
           :routes="filteredRoutes" />
@@ -77,9 +77,9 @@ const props = defineProps({
     default: () => [],
     required: true,
   },
-  isLoading : {
+  loading : {
     type: Boolean,
-    required: false,
+    required: true,
   },
 });
 
