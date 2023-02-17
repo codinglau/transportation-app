@@ -28,11 +28,13 @@
     </q-timeline>
 
     <!-- blank bus route stops -->
-    <q-chip v-else square 
-        icon="warning"
-        label="No bus route stops found."
-        color="transparent"
-        text-color="primary" />
+    <div v-else class="fit flex flex-center">
+      <q-chip square 
+          icon="warning"
+          label="No bus route stops found."
+          color="transparent"
+          text-color="primary" />
+    </div>
 
     <!-- floating btn -->
     <q-page-sticky position="bottom-right" :offset="[18, 18]">

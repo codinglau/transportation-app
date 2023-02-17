@@ -159,6 +159,9 @@ function setLanguage(value) {
       ...route.params,
       lang: (value === 'zh-TW') ? 'tc' : 'en', 
     },
+    query: {
+      ...route.query,
+    },
   });
 }
 </script>
