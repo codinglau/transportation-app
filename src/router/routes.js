@@ -39,11 +39,12 @@ const routes = [
                 component: () => import('pages/bus/RouteListPage.vue'),
               },
               {
-                path: ':routeId/:direction',
+                path: ':routeId',
                 name: 'bus.route',
                 component: () => import('pages/bus/RoutePage.vue'),
                 props: (route) => ({
                   ...route.params,
+                  ...route.query,
                 }),
               }
             ],

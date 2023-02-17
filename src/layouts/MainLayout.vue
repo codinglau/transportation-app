@@ -7,14 +7,14 @@
             icon="menu"
             aria-label="Menu"
             @click="toggleLeftDrawer" />
-        <q-toolbar-title class="text-center">
+        <q-toolbar-title>
           {{ t(data.title) }}
         </q-toolbar-title>
-        <q-btn flat round
+        <!-- <q-btn flat round
             icon="fa-solid fa-rotate"
             aria-label="Refresh Page">
           <q-tooltip>刷新資料</q-tooltip>
-        </q-btn>
+        </q-btn> -->
       </q-toolbar>
     </q-header>
 
@@ -52,7 +52,7 @@
 
 <script setup>
 import { useMeta, useQuasar } from 'quasar';
-import { ref, reactive, computed, onBeforeMount, watch } from 'vue';
+import { ref, reactive, computed, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { Layout } from 'components';
@@ -142,28 +142,16 @@ useMeta(() => ({
   title: t(data.title),
 }));
 
-// fetch bus routes when company id changes
-watch(() => props.companyId, (newCID, oldCID) => {
-  if ($q.screen.gt.sm || route.name === 'bus.routes') {
+// fetch bus routes when company id changes and screen is greater than sm
+watchEffect(() => {
+  if ($q.screen.gt.sm || route.name !== 'bus.routes') {
     // wait for the company id to be updated before fetching bus routes
+    fetchBusRoutes(props.companyId);
+  } else if (route.name === 'bus.routes') {
+    // fetch bus routes when company id changes
     setTimeout(() => {
-      fetchBusRoutes(newCID);
+      fetchBusRoutes(props.companyId);
     }, 100);
-  }
-}); 
-
-// fetch bus routes when screen is greater than sm
-watch(() => $q.screen.gt.sm, (value) => {
-  if (value) {
-    fetchBusRoutes(props.companyId);
-  }
-}); 
-
-// before mount
-onBeforeMount(() => {
-  if ($q.screen.gt.sm || route.name === 'bus.routes') {
-    // fetch bus routes when screen is greater than sm
-    fetchBusRoutes(props.companyId);
   }
 });
 </script>
