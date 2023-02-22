@@ -1,11 +1,35 @@
 <template>
-  <q-page padding>
+  <q-page padding class="row justify-center">
     <!-- skeleton -->
-    <div v-if="isLoading" class="row justify-center">
-      <Bus.RouteSkeleton class="col-5" />
+    <q-card flat bordered v-if="isLoading" class="col-12 col-md-8">
+      <Bus.RouteSkeleton />
+    </q-card>
+
+    <div v-else-if="hasBusRouteStops" class="col-12 col-md-8">
+      <q-stepper animated flat header-nav vertical bordered
+          v-model="currentStop"
+          ref="stepper"
+          active-color="info"
+          active-icon="visibility"
+          inactive-color="primary"
+          @update:model-value="fetchBusStopEta">
+        <q-step
+            v-for="stop in busRouteStopsByLang"
+            :key="stop.stop"
+            :name="stop.stop"
+            :title="stop.name"
+            icon="keyboard_double_arrow_down">
+          For each ad campaign that you create, you can control how much you're willing to
+          spend on clicks and conversions, which networks and geographical locations you want
+          your ads to show on, and more.
+        </q-step>
+      </q-stepper>
     </div>
 
-    <q-timeline v-else-if="hasBusRouteStops" layout="comfortable" color="secondary">
+    <!-- <q-timeline 
+        v-else-if="hasBusRouteStops" 
+        layout="dense" 
+        color="secondary">
       <q-timeline-entry
           v-for="stop in busRouteStopsByLang"
           :key="stop.stop"
@@ -25,7 +49,7 @@
           </template>
         </div>
       </q-timeline-entry>
-    </q-timeline>
+    </q-timeline> -->
 
     <!-- blank bus route stops -->
     <div v-else class="fit flex flex-center">
@@ -41,7 +65,7 @@
       <q-btn fab 
           icon="swap_vert" 
           color="accent" 
-          @click="onDirectionReverse" />
+          @click="reverseDirections" />
     </q-page-sticky>
   </q-page>
 </template>
@@ -55,7 +79,7 @@ import { useBusService } from 'src/services';
 
 const router = useRouter();
 const { fetch, isLoading } = useFetch();
-const { getBusRoute } = useBusService();
+const { getBusRoute, getBusStopEta } = useBusService();
 
 // define props
 const props = defineProps({
@@ -77,19 +101,28 @@ const props = defineProps({
   },
 });
 
+/**
+ * Handle bus route stops
+ */
+
+// current stop
+const currentStop = ref(null);
+
 // variable to store bus route stops
 const busRouteStops = ref([]);
+
 // computed bus route stops by language
-const busRouteStopsByLang = computed(() => busRouteStops.value
-  .map((stop) => ({
+const busRouteStopsByLang = computed(
+  () => busRouteStops.value.map((stop) => ({
     ...stop,
     name: stop[props.lang],
   }))
 );
+
 // non-empty bus route stops flag
 const hasBusRouteStops = computed(() => busRouteStops.value.length > 0);
 
-// fetch bus routes
+// fetch bus route stops
 function fetchBusRoute(companyId, routeId, direction) {
   fetch(getBusRoute, { 
     companyId, routeId, direction 
@@ -104,17 +137,32 @@ function fetchBusRoute(companyId, routeId, direction) {
 }
 
 // reverse the direction
-function onDirectionReverse() {
-  const direction = props.direction === 'outbound' ? 'inbound' : 'outbound';
+function reverseDirections() {
+  const direction = (props.direction === 'outbound') ? 'inbound' : 'outbound';
   router.push({
     name: 'bus.route',
     params: {
       companyId: props.companyId,
       routeId: props.routeId,
     },
-    query: {
-      direction,
-    }
+    query: { direction },
+  });
+}
+
+// fetch bus stop eta
+function fetchBusStopEta(stopId) {
+  fetch(getBusStopEta, { 
+    companyId: props.companyId, 
+    routeId: props.routeId, 
+    stopId, 
+  }, {
+    config: {
+      renderLoadingSpinner: false,
+    },
+    // onSuccess(eta) {
+    //   const stop = busRouteStops.value.find((stop) => stop.stop === stopId);
+    //   stop.eta = eta;
+    // },
   });
 }
 

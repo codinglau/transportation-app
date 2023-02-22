@@ -4,7 +4,6 @@
         v-for="route in routes"
         :key="route.id">
       <q-item clickable 
-          class="text-weight-bold" 
           active-class="bg-teal-1"
           :to="viewBusRoute(route.id)">
         <q-item-section avatar>
@@ -30,8 +29,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-
 const props = defineProps({
   routes: {
     type: Array,

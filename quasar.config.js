@@ -74,7 +74,7 @@ module.exports = configure(function (/* ctx */) {
         API: {
           CTB: 'https://rt.data.gov.hk/v1.1/transport/citybus-nwfb/',
           NWFB: 'https://rt.data.gov.hk/v1.1/transport/citybus-nwfb/',
-          KMB: 'https://data.etabus.gov.hk/v1/transport/',
+          KMB: 'https://data.etabus.gov.hk/v1/transport/kmb/',
           NLB: 'https://rt.data.gov.hk/v2/transport/nlb/',
           // MTR: 'https://rt.data.gov.hk/v1/transport/mtr/bus/getSchedule',
         },

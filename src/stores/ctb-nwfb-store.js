@@ -72,7 +72,7 @@ export const useCtbNwfbStore = defineStore('ctb-nwfb', {
     },
 
     // get bus ETA from API
-    async getBusEta(companyId, stopId, routeId) {
+    async getBusStopEta(companyId, stopId, routeId) {
       try {
         const response = await api.get(`eta/${companyId}/${stopId}/${routeId}`);
         return handleResponse(response);

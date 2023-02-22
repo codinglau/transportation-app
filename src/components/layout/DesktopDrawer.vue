@@ -36,7 +36,6 @@
         v-model.trim="data.searchField.value"
         clear-icon="close"
         debounce="300"
-        mask="X"
         :placeholder="t(data.searchField.placeholder)">
       <template #prepend>
         <q-icon name="search" />
@@ -106,14 +105,22 @@ const data = reactive({
 /** computed properties */
 // filter routes
 const filteredRoutes = computed(() => {
-  if (!data.searchField.value) return props.routes;
+  let routes = [];
 
-  return props.routes.filter((r) => {
-    const target = [r.id, r.origin, r.destination].join(' ').toUpperCase();
-    return target.includes(data.searchField.value.toUpperCase());
-  });
+  if (!data.searchField.value) {
+    // if search field is empty
+    routes = props.routes.slice();
+  } else {
+    // if search field is not empty
+    routes = props.routes.filter((r) => {
+      const target = [r.id, r.origin, r.destination].join(' ').toUpperCase();
+      return target.includes(data.searchField.value.toUpperCase());
+    });
+  }
+
+  return routes;
 });
 
-  // check if there are any routes
+// has route flag
 const hasRoutes = computed(() => filteredRoutes.value.length > 0);
 </script>

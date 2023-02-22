@@ -20,20 +20,10 @@ export const useKmbLwbStore = defineStore('kmb-lwb', {
   getters: {
   },
   actions: {
-    // get bus company information from API
-    async getBusCompanyInfo({ companyId }) {
-      try {
-        const response = await api.get(`company/${companyId}`);
-        return handleResponse(response);
-      } catch (error) {
-        return Promise.reject(error);
-      }
-    },
-
     // get bus routes from API
-    async getBusRoutes(companyId) {
+    async getBusRoutes() {
       try {
-        const response = await api.get(`${companyId}/route`);
+        const response = await api.get('route');
         return handleResponse(response);
       } catch (error) {
         return Promise.reject(error);
