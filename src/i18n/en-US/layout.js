@@ -4,11 +4,13 @@ export default {
   },
   drawer: {
     title: 'Bus Routes',
-    search: 'Search',
+    search: 'Search for a bus route',
     noData: 'Oops, no bus routes found.',
   },
   footer: {
     bus: 'Bus',
   },
-  settings: 'Settings',
+  tooltip: {
+    about: 'About',
+  },
 }

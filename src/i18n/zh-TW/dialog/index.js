@@ -1,5 +1,5 @@
-import setting from './setting.js';
+import about from './about.js';
 
 export default {
-  setting,
+  about,
 }

@@ -26,16 +26,13 @@
             text-color="primary" />
       </div>
     </q-card>
-
-    <!-- dialog -->
-    <!-- <component :is="data.dialog.name" v-model="data.dialog.isOpen" /> -->
   </q-page>
 </template>
 
 <script setup>
-import { computed, reactive, markRaw } from 'vue';
+import { computed, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Bus, Dialog } from 'components';
+import { Bus } from 'components';
 
 // use i18n
 const { t } = useI18n();
@@ -44,23 +41,18 @@ const { t } = useI18n();
 const props = defineProps({
   loading: {
     type: Boolean,
+    default: false,
     required: true,
   },
-  busRoutes: {
+  routeList: {
     type: Array,
+    default: () => [],
     required: true,
   },
 });
 
 // data
 const data = reactive({
-  dialog: {
-    name: markRaw(Dialog.SettingDialog),
-    isOpen: false,
-    btn: {
-      label: 'layout.settings',
-    },
-  },
   yetToSelectLabel: 'page.routeList.yetToSelect',
   noDataLabel: 'layout.drawer.noData',
   searchField: {
@@ -73,10 +65,10 @@ const data = reactive({
 // filter routes
 const filteredRoutes = computed(() => {
   // if no search value, return all routes
-  if (!data.searchField.value) return props.busRoutes;
+  if (!data.searchField.value) return props.routeList;
 
   // else filter routes by search value
-  return props.busRoutes.filter((r) => {
+  return props.routeList.filter((r) => {
     const target = [r.id, r.origin, r.destination].join(' ').toUpperCase();
     return target.includes(data.searchField.value.toUpperCase());
   });

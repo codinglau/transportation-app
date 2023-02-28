@@ -1,7 +1,7 @@
 <template>
   <q-list separator>
     <q-slide-item 
-        v-for="route in routes"
+        v-for="route in options"
         :key="route.id">
       <q-item clickable 
           active-class="bg-teal-1"
@@ -29,9 +29,10 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  routes: {
+defineProps({
+  options: {
     type: Array,
+    default: () => [],
     required: true,
   },
 });

@@ -1,16 +1,14 @@
 <template>
   <q-dialog persistent
       :model-value="modelValue"
-      @update:model-value="(value) => $emit('update:modelValue', value)" 
-      transition-show="scale" 
-      transition-hide="scale">
+      @update:model-value="(value) => $emit('update:modelValue', value)">
     <q-card class="dialog">
-      <q-bar class="bg-primary text-white justify-between">
-        <span>關於</span>
+      <q-toolbar class="bg-primary text-white justify-between">
+        <q-toolbar-title>{{ t(dialogTitle) }}</q-toolbar-title>
         <q-btn flat round dense v-close-popup
             icon="close"
             aria-label="Close" />
-      </q-bar>
+      </q-toolbar>
       <q-card flat bordered>
         <q-item>
           <q-item-section avatar>
@@ -90,7 +88,7 @@ defineEmits(['update:modelValue']);
 const data = reactive({
   language: {
     icon: 'translate',
-    label: 'dialog.setting.setting.language.label',
+    label: 'dialog.about.setting.language.label',
     value: computed({
       get: () => route.params?.lang === 'tc' ? 'zh-TW' : 'en-US',
       set: (value) => null
@@ -108,42 +106,45 @@ const data = reactive({
   },
 });
 
+// dialog title
+const dialogTitle = 'dialog.about.title';
+
 // project descriptions
 const projectDescriptions = [
   {
     icon: 'flag',
-    label: 'dialog.setting.project.purpose.label',
-    caption: 'dialog.setting.project.purpose.caption',
+    label: 'dialog.about.project.purpose.label',
+    caption: 'dialog.about.project.purpose.caption',
   },
   {
     icon: 'volunteer_activism',
-    label: 'dialog.setting.project.about.label',
-    caption: 'dialog.setting.project.about.caption',
+    label: 'dialog.about.project.about.label',
+    caption: 'dialog.about.project.about.caption',
   },
   {
     icon: 'account_tree',
-    label: 'dialog.setting.project.dataSource.label',
-    caption: 'dialog.setting.project.dataSource.caption',
+    label: 'dialog.about.project.dataSource.label',
+    caption: 'dialog.about.project.dataSource.caption',
   },
   {
     icon: 'lock',
-    label: 'dialog.setting.project.dataOwnership.label',
-    caption: 'dialog.setting.project.dataOwnership.caption',
+    label: 'dialog.about.project.dataOwnership.label',
+    caption: 'dialog.about.project.dataOwnership.caption',
   },
   {
     icon: 'info',
-    label: 'dialog.setting.project.version.label',
-    caption: 'dialog.setting.project.version.caption',
+    label: 'dialog.about.project.version.label',
+    caption: 'dialog.about.project.version.caption',
   },
   {
     icon: 'bug_report',
-    label: 'dialog.setting.project.bugReport.label',
-    caption: 'dialog.setting.project.bugReport.caption',
+    label: 'dialog.about.project.suggestionsOrBugReport.label',
+    caption: 'dialog.about.project.suggestionsOrBugReport.caption',
   },
   {
     imgSrc: 'https://github.com/codinglau.png',
-    label: 'dialog.setting.project.createdBy.label',
-    caption: 'dialog.setting.project.createdBy.caption',
+    label: 'dialog.about.project.createdBy.label',
+    caption: 'dialog.about.project.createdBy.caption',
   },
 ];
 

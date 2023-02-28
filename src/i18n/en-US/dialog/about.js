@@ -1,5 +1,5 @@
 export default {
-  title: 'Setting',
+  title: 'About',
   setting: {
     language: {
       label: 'Language',
@@ -8,7 +8,7 @@ export default {
   project: {
     purpose: {
       caption: 'Purpose',
-      label: 'To make our lives easier.'
+      label: 'This project aims to provide a simple and easy-to-use interface for users to access the bus arrival time data.'
     },
     about: {
       caption: 'About',
@@ -31,8 +31,8 @@ export default {
       // https://vue-i18n.intlify.dev/guide/essentials/syntax.html#interpolations
       label: "codinglau{'@'}gmail.com",
     },
-    bugReport: {
-      caption: 'Bug Report',
+    suggestionsOrBugReport: {
+      caption: 'Suggestions or Bug Report',
       label: "codinglau{'@'}gmail.com",
     },
   }

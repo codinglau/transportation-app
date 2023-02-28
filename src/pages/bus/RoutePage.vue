@@ -1,7 +1,7 @@
 <template>
   <q-page padding class="row justify-center">
     <!-- skeleton -->
-    <q-card flat bordered v-if="isLoading" class="col-12 col-md-8">
+    <q-card flat bordered v-if="loadingBusRoute" class="col-12 col-md-8">
       <Bus.RouteSkeleton />
     </q-card>
 
@@ -77,8 +77,15 @@ import { Bus } from 'src/components';
 import { useFetch } from 'src/composables';
 import { useBusService } from 'src/services';
 
+// use router
 const router = useRouter();
-const { fetch, isLoading } = useFetch();
+// use fetch
+const { 
+  fetch, 
+  busRoute: loadingBusRoute,
+  busStopEta: loadingBusStopEta, 
+} = useFetch(['busRoute', 'busStopEta']);
+// use bus service
 const { getBusRoute, getBusStopEta } = useBusService();
 
 // define props
@@ -128,7 +135,7 @@ function fetchBusRoute(companyId, routeId, direction) {
     companyId, routeId, direction 
   }, {
     config: {
-      renderLoadingSpinner: false,
+      loadingScope: 'busRoute',
     },
     onSuccess(route) {
       busRouteStops.value = route.slice();
@@ -157,7 +164,7 @@ function fetchBusStopEta(stopId) {
     stopId, 
   }, {
     config: {
-      renderLoadingSpinner: false,
+      loadingScope: 'busStopEta',
     },
     // onSuccess(eta) {
     //   const stop = busRouteStops.value.find((stop) => stop.stop === stopId);

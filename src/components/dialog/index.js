@@ -1,5 +1,5 @@
-import SettingDialog from './SettingDialog.vue';
+import AboutDialog from './AboutDialog.vue';
 
 export default {
-  SettingDialog,
+  AboutDialog,
 };

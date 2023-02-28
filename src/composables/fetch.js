@@ -1,19 +1,39 @@
 // @ts-check
 import { Loading, Notify } from 'quasar';
-import { ref } from 'vue';
+import { reactive, toRefs } from 'vue';
 
-export default function useFetch() {
-  // loading state
-  const isLoading = ref(false);
+/**
+ * @param {[string]} loadingComponents - array of loading components
+ */
+export default function useFetch(loadingComponents) {
+  // check if loadingComponents is an array
+  if (!Array.isArray(loadingComponents)) {
+    throw new Error('loadingComponents must be an array.');
+  }
+
+  // construct loading context
+  const loadingContext = loadingComponents.reduce((cxt, component) => {
+    // check if component is a string and not empty
+    if (typeof component === 'string' && component.length > 0) {
+      cxt[component] = false;
+    }
+
+    return cxt;
+  }, {});
+
+  const loading = reactive({
+    ...loadingContext,
+    global: false,
+  });
 
   /**
    * @type {Object} defaultConfig - default loading configuration
    * @property {Boolean} enableLoading - default true; toggle loading state
-   * @property {Boolean} renderLoadingSpinner - only works when enableLoading is true; render loading spinner when true
+   * @property {string} loadingScope - default 'global'; loading scope (global, component)
    */
   const defaultConfig = {
     enableLoading: true,  
-    renderLoadingSpinner: true,
+    loadingScope: 'global',
   };
 
   /**
@@ -26,16 +46,25 @@ export default function useFetch() {
    *  onFinally?: Function, 
    * }} context
    */
-  async function fetch(
-    action, 
-    request,
-    { config, onSuccess, onError, onFinally }, 
-  ) {
+  async function fetch(action, request, context) {
+    // destructure context
+    const {
+      config,
+      onSuccess,
+      onError,
+      onFinally
+    } = context;
+
     // merge default config with the config provided by the user
     const { 
       enableLoading, 
-      renderLoadingSpinner 
+      loadingScope 
     } = Object.assign({}, defaultConfig, config);
+
+    // check if loading scope is valid
+    if (!loadingScope || !loadingComponents.includes(loadingScope)) {
+      throw new Error('Invalid loading scope.');
+    }
     
     try {      
       if (action === undefined || typeof action !== 'function') {
@@ -45,8 +74,8 @@ export default function useFetch() {
         // turn on loading if enabled
         // render loading spinner if enabled
         if (enableLoading) {
-          isLoading.value = true;
-          if (renderLoadingSpinner) Loading.show();
+          loading[loadingScope] = true;
+          if (loadingScope === 'global') Loading.show();
         }
         
         // when action is a function
@@ -77,8 +106,8 @@ export default function useFetch() {
     // turn off loading and hide loading spinner
     } finally {
       if (enableLoading) {
-        isLoading.value = false;
-        if (renderLoadingSpinner) Loading.hide();
+        loading[loadingScope] = false;
+        if (loadingScope === 'global') Loading.hide();
       }
       if (typeof onFinally === 'function') {
         onFinally();
@@ -86,5 +115,8 @@ export default function useFetch() {
     }
   }
 
-  return { fetch, isLoading };
+  return { 
+    fetch, 
+    ...toRefs(loading), 
+  };
 }

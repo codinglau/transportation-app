@@ -1,5 +1,5 @@
 export default {
-  title: '設定',
+  title: '關於',
   setting: {
     language: {
       label: '語言',
@@ -8,7 +8,7 @@ export default {
   project: {
     purpose: {
       caption: '目的',
-      label: '為了讓我們的生活更加方便。'
+      label: '這個項目旨在為用戶提供一個簡單且易於使用的界面，以便用戶可以訪問公共巴士到站時間數據。'
     },
     about: {
       caption: '關於',
@@ -31,8 +31,8 @@ export default {
       // https://vue-i18n.intlify.dev/guide/essentials/syntax.html#interpolations
       label: "codinglau{'@'}gmail.com",
     },
-    bugReport: {
-      caption: 'Bug Report',
+    suggestionsOrBugReport: {
+      caption: '建議或錯誤報告',
       label: "codinglau{'@'}gmail.com",
     },
   }

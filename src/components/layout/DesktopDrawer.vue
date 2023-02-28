@@ -6,13 +6,13 @@
     <!-- drawer header -->
     <q-toolbar class="bg-primary text-white">
       <q-avatar icon="fa-solid fa-bus" />
-      <q-toolbar-title>{{ t(data.title) }}</q-toolbar-title>
+      <q-toolbar-title>{{ t(title) }}</q-toolbar-title>
 
-      <q-btn flat round
+      <q-btn flat round dense
           icon="fa-solid fa-gear"
-          :aria-label="t(data.dialog.btn.label)"
-          @click="data.dialog.isOpen = true">
-        <q-tooltip>{{ t(data.dialog.btn.label) }}</q-tooltip>
+          :aria-label="t(dialog.btn.label)"
+          @click="dialog.isOpen = true">
+        <q-tooltip>{{ t(dialog.btn.label) }}</q-tooltip>
       </q-btn>
     </q-toolbar>
 
@@ -20,23 +20,23 @@
     <q-scroll-area class="drawer__content">
       <Bus.RouteListSkeleton v-if="loading" />
       <Bus.RouteList 
-          v-else-if="hasRoutes" 
-          :routes="filteredRoutes" />
+          v-else-if="isEmptyRouteList" 
+          :options="filteredRouteList" />
       <div v-else class="flex flex-center">
         <q-chip square 
-            icon="warning"
-            :label="t(data.noDataLabel)"
             color="transparent"
-            text-color="primary" />
+            icon="warning"
+            text-color="primary"
+            :label="t(emptyRouteListLabel)" />
       </div>
     </q-scroll-area>
 
     <!-- drawer search -->
-    <q-input outlined dense clearable reverse-fill-mask
-        v-model.trim="data.searchField.value"
+    <q-input outlined dense clearable
+        v-model.trim="searchField.value"
         clear-icon="close"
         debounce="300"
-        :placeholder="t(data.searchField.placeholder)">
+        :placeholder="t(searchField.placeholder)">
       <template #prepend>
         <q-icon name="search" />
       </template>
@@ -45,10 +45,10 @@
     <!-- drawer tabs -->
     <Bus.CompanyTabs outside-arrows 
         class="bg-grey-2"
-        :options="companies" />
+        :options="companyList" />
     
     <!-- setting dialog -->
-    <component :is="data.dialog.name" v-model="data.dialog.isOpen" />
+    <component :is="dialog.name" v-model="dialog.isOpen" />
   </q-drawer>
 </template>
 
@@ -66,18 +66,19 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  companies: {
+  companyList: {
     type: Array,
     default: () => [],
     required: true,
   },
-  routes: {
+  routeList: {
     type: Array,
     default: () => [],
     required: true,
   },
   loading : {
     type: Boolean,
+    default: false,
     required: true,
   },
 });
@@ -85,42 +86,49 @@ const props = defineProps({
 // define emits
 defineEmits(['update:modelValue']);
 
-// data context
-const data = reactive({
-  title: 'layout.drawer.title',
-  dialog: {
-    name: markRaw(Dialog.SettingDialog),
-    isOpen: false,
-    btn: {
-      label: 'layout.settings',
-    },
-  },
-  noDataLabel: 'layout.drawer.noData', 
-  searchField: {
-    value: '',
-    placeholder: 'layout.drawer.search',
+// drawer title
+const title = 'layout.drawer.title';
+
+// #region Dialog
+const dialog = reactive({
+  isOpen: false,
+  name: markRaw(Dialog.AboutDialog),
+  btn: {
+    label: 'layout.tooltip.about',
   },
 });
+// #endregion
 
-/** computed properties */
-// filter routes
-const filteredRoutes = computed(() => {
-  let routes = [];
+// #region Search Field
+const searchField = reactive({
+  value: '',
+  placeholder: 'layout.drawer.search',
+});
+// #endregion 
 
-  if (!data.searchField.value) {
+// #region Bus Route List
+// filter route list by search field
+const filteredRouteList = computed(() => {
+  let routeList = [];
+
+  if (!searchField.value) {
     // if search field is empty
-    routes = props.routes.slice();
+    routeList = props.routeList.slice();
   } else {
     // if search field is not empty
-    routes = props.routes.filter((r) => {
+    routeList = props.routeList.filter((r) => {
       const target = [r.id, r.origin, r.destination].join(' ').toUpperCase();
-      return target.includes(data.searchField.value.toUpperCase());
+      return target.includes(searchField.value.toUpperCase());
     });
   }
 
-  return routes;
+  return routeList;
 });
 
-// has route flag
-const hasRoutes = computed(() => filteredRoutes.value.length > 0);
+// empty route list flag
+const isEmptyRouteList = computed(() => filteredRouteList.value.length > 0);
+
+// empty route list label
+const emptyRouteListLabel = 'layout.drawer.noData';
+// #endregion
 </script>

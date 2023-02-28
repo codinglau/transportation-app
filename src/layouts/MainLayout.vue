@@ -8,7 +8,7 @@
             aria-label="Menu"
             @click="toggleLeftDrawer" />
         <q-toolbar-title>
-          {{ t(data.title) }}
+          {{ t(title) }}
         </q-toolbar-title>
         <!-- <q-btn flat round
             icon="fa-solid fa-rotate"
@@ -37,22 +37,24 @@
 
     <!-- desktop drawer -->
     <Layout.DesktopDrawer 
+        class="gt-sm"
         v-model="leftDrawerOpen"
-        :companies="data.busCompany.options"
-        :routes="busRoutes"
-        :loading="isLoading"
-        class="gt-sm" />
+        :loading="loadingRouteList"
+        :company-list="companyList"
+        :route-list="routeListByLang" />
 
     <!-- main panel -->
     <q-page-container>
-      <router-view :bus-routes="busRoutes" :loading="isLoading" />
+      <router-view 
+          :route-list="routeListByLang" 
+          :loading="loadingRouteList" />
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup>
 import { useMeta, useQuasar } from 'quasar';
-import { ref, reactive, computed, watchEffect } from 'vue';
+import { ref, computed, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { Layout } from 'components';
@@ -60,6 +62,7 @@ import { useFetch } from 'src/composables';
 import { useBusService } from 'src/services';
 import { useOption } from 'src/constants';
 
+// #region Setup
 // use q object
 const $q = useQuasar();
 // use route
@@ -69,9 +72,13 @@ const { t } = useI18n();
 // use global option
 const option = useOption();
 // use fetch 
-const { fetch, isLoading } = useFetch();
+const { 
+  fetch, 
+  loadingRouteList 
+} = useFetch(['loadingRouteList']);
 // use bus service
 const { getBusRoutes } = useBusService();
+// #endregion
 
 // define props
 const props = defineProps({
@@ -82,76 +89,88 @@ const props = defineProps({
   },
   companyId: {
     type: String,
+    default: 'kmb', // default to kmb
   },
 });
 
-// data
-const data = reactive({
-  title: 'layout.header.title',
-  busCompany: {
-    options: option.busCompanies.map((bc) => ({
-      ...bc,
-      to: {
-        name: 'bus.routes',
-        params: {
-          companyId: bc.value,
-        },
-      }
-    })),
-  },
-  footer: {
-
-  },
-  busRoute: {
-    value: '',
-    options: [],
-  }
-});
-
-/** handle drawer */
+// #region Drawer
+// left drawer open state
 const leftDrawerOpen = ref(false);
 
+// toggle left drawer
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
+// #endregion
 
-/** handle bus data */
-// computed bus routes
-const busRoutes = computed(() => data.busRoute.options
-  .map((r) => ({
+// #region Bus Route List
+const routeList = ref([]);
+
+// computed bus routes by language
+const routeListByLang = computed(
+  () => routeList.value.map((r) => ({
     ...r,
     origin: r.origin[props.lang],
     destination: r.destination[props.lang],
   }))
 );
 
-// fetch bus routes
-function fetchBusRoutes(companyId) {
+// fetch bus route list
+function fetchRouteList(companyId) {
   fetch(getBusRoutes, { companyId }, {
     config: {
-      renderLoadingSpinner: false,
+      loadingScope: 'loadingRouteList',
     },
-    onSuccess(routes) {
-      data.busRoute.options = routes.slice();
+    onSuccess(data) {
+      routeList.value = data.slice();
     },
   });
 }
+// #endregion
 
-// set meta
-useMeta(() => ({
-  title: t(data.title),
+// #region Company List
+const companyList = option.busCompanies.map((c) => ({
+  ...c,
+  to: {
+    name: 'bus.routes',
+    params: {
+      companyId: c.value,
+    },
+  }
 }));
+// #endregion
 
-// fetch bus routes when company id changes and screen is greater than sm
+// #region Meta
+const title = 'layout.header.title';
+useMeta(() => ({
+  title: t(title),
+}));
+// #endregion
+
+// reset bus route list when company id changes or screen size changes
 watchEffect(() => {
-  if ($q.screen.gt.sm || route.name !== 'bus.routes') {
-    // wait for the company id to be updated before fetching bus routes
-    fetchBusRoutes(props.companyId);
-  } else if (route.name === 'bus.routes') {
-    // fetch bus routes when company id changes
-    setTimeout(() => {
-      fetchBusRoutes(props.companyId);
-    }, 100);
+  if ($q.screen.gt.sm) {
+    // when screen becomes greater than sm, 
+    // i.e. drawer reappears and bus route list would be shown on the left drawer
+    // and current page is not the bus route list page
+    if (route.name !== 'bus.routes') {
+      // reset bus route list
+      fetchRouteList(props.companyId);
+    } else {
+      // when current page is the bus route list page
+      // wait for the company id to be updated before fetching bus routes
+      // i.e. wait for q-route-tab to switch to the correct tab first
+      setTimeout(() => {
+        fetchRouteList(props.companyId);
+      }, 200);
+    }
+  } else {
+    // when screen is less than sm
+    // i.e. drawer disappears and bus route list would be shown on the main panel
+    if (route.name === 'bus.routes') {
+      // reset bus route list
+      fetchRouteList(props.companyId);
+    }
   }
 });
 </script>
