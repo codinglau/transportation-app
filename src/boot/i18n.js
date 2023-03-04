@@ -2,7 +2,7 @@ import { boot } from 'quasar/wrappers';
 import { createI18n } from 'vue-i18n';
 import messages from 'src/i18n';
 
-export default boot(({ app }) => {
+export default boot(({ app, router }) => {
   // default language
   let lang = 'zh-TW';
 
@@ -11,6 +11,25 @@ export default boot(({ app }) => {
     locale: lang,
     globalInjection: true,
     messages
+  });
+
+  // set language based on lang parameter in route
+  router.beforeEach((to, _) => {
+    if ('lang' in to.params) {
+      if (['en', 'tc'].includes(to.params.lang)) {
+        i18n.global.locale.value = (to.params.lang === 'en') 
+          ? 'en-US' 
+          : 'zh-TW';
+      } else {
+        // for invalid language, redirect to home page
+        return { 
+          name: 'home',
+          params: {
+            lang: 'tc',
+          }, 
+        };
+      }
+    }
   });
 
   // set i18n instance on app
