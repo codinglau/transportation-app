@@ -1,11 +1,11 @@
 import CompanyTabs from './CompanyTabs.vue';
-import RouteSkeleton from './RouteSkeleton.vue';
+import RouteStopListSkeleton from './RouteStopListSkeleton.vue';
 import RouteList from './RouteList.vue';
 import RouteListSkeleton from './RouteListSkeleton.vue';
 
 export default {
   CompanyTabs,
-  RouteSkeleton,
+  RouteStopListSkeleton,
   RouteList,
   RouteListSkeleton,
 }

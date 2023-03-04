@@ -12,20 +12,20 @@ export default function useBusService() {
   /**
    * Get bus routes for a given company
    * @param {{ [x:string]: string }} request
-   * @returns {Promise<any>}
+   * @returns {Promise<Array>}
    */
-  async function getBusRoutes({ companyId }) {
+  async function getBusRouteList({ companyId }) {
     try {
-      let busRoutes = [];
+      let busRouteList = [];
 
       if (['ctb', 'nwfb'].includes(companyId)) {
-        busRoutes = await ctbNwfbService.getBusRoutes({ companyId });
+        busRouteList = await ctbNwfbService.getBusRouteList({ companyId });
       } else if (companyId === 'kmb') {
-        busRoutes = await kmbLwbService.getBusRoutes();
+        busRouteList = await kmbLwbService.getBusRouteList();
       } else if (companyId === 'nlb') {
-        busRoutes = await nlbService.getBusRoutes();
+        busRouteList = await nlbService.getBusRouteList();
       }
-      return Promise.resolve(busRoutes);
+      return Promise.resolve(busRouteList);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -34,37 +34,44 @@ export default function useBusService() {
   /**
    * Get bus stops for a given route
    * @param {{ [x:string]: string }} request
-   * @returns {Promise<any>}
+   * @returns {Promise<Array>}
    */
-  async function getBusRoute({ companyId, routeId, direction }) {
+  async function getBusRouteStopList({ companyId, routeId, direction }) {
     try {
-      let busRoute = [];
+      let busRouteStopList = [];
 
       if (['nwfb', 'ctb'].includes(companyId)) {
-        busRoute = await ctbNwfbService.getBusRoute({ companyId, routeId, direction });
+        busRouteStopList = await ctbNwfbService.getBusRouteStopList({ companyId, routeId, direction });
       }
 
-      return Promise.resolve(busRoute);
+      return Promise.resolve(busRouteStopList);
     } catch (error) {
       return Promise.reject(error);
     }
   }
 
-  async function getBusStopEta({ companyId, stopId, routeId, direction }) {
+  /**
+   * Get bus stops for a given route
+   * @param {{ [x:string]: string }} request
+   * @returns {Promise<Array>}
+   */
+  async function getBusStopEtaList({ companyId, stopId, routeId, direction }) {
     try {
-      let busStopEta = [];
+      let busStopEtaList = [];
 
       if (['nwfb', 'ctb'].includes(companyId)) {
-        busStopEta = await ctbNwfbService.getBusStopEta({ companyId, stopId, routeId, direction });
+        busStopEtaList = await ctbNwfbService.getBusStopEtaList({ companyId, stopId, routeId, direction });
       }
+
+      return Promise.resolve(busStopEtaList);
     } catch (error) {
       return Promise.reject(error);
     }
   }
 
   return {
-    getBusRoutes,
-    getBusRoute,
-    getBusStopEta,
+    getBusRouteList,
+    getBusRouteStopList,
+    getBusStopEtaList,
   };
 }

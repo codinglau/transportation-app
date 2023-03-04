@@ -16,6 +16,22 @@
       </q-btn>
     </q-toolbar>
 
+    <!-- company tabs -->
+    <Bus.CompanyTabs outside-arrows 
+        class="bg-grey-2"
+        :options="companyList" />
+
+    <!-- drawer search -->
+    <q-input outlined dense clearable
+        v-model.trim="searchField.value"
+        clear-icon="close"
+        debounce="300"
+        :placeholder="t(searchField.placeholder)">
+      <template #prepend>
+        <q-icon name="search" />
+      </template>
+    </q-input>
+
     <!-- drawer content -->
     <q-scroll-area class="drawer__content">
       <Bus.RouteListSkeleton v-if="loading" />
@@ -31,21 +47,7 @@
       </div>
     </q-scroll-area>
 
-    <!-- drawer search -->
-    <q-input outlined dense clearable
-        v-model.trim="searchField.value"
-        clear-icon="close"
-        debounce="300"
-        :placeholder="t(searchField.placeholder)">
-      <template #prepend>
-        <q-icon name="search" />
-      </template>
-    </q-input>
-
-    <!-- drawer tabs -->
-    <Bus.CompanyTabs outside-arrows 
-        class="bg-grey-2"
-        :options="companyList" />
+    
     
     <!-- setting dialog -->
     <component :is="dialog.name" v-model="dialog.isOpen" />

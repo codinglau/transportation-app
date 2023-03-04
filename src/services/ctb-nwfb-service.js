@@ -10,14 +10,14 @@ export default function useCtbNwfbService() {
    * @param {{ [x:string]: string }} request
    * @returns {Promise<Object[]>}
    */
-  async function getBusRoutes({ companyId }) {
+  async function getBusRouteList({ companyId }) {
     try {
-      let busRoutes = [];
-      const response = await ctbNwfbStore.getBusRoutes(companyId);
+      let busRouteList = [];
+      const response = await ctbNwfbStore.getBusRouteList(companyId);
 
       if (response) {
         // map response to bus routes
-        busRoutes = response
+        busRouteList = response
           .map((
             /** @type {{ [x: string]: string; }} */ r
           ) => ({
@@ -33,7 +33,7 @@ export default function useCtbNwfbService() {
           }));
       }
 
-      return Promise.resolve(busRoutes);
+      return Promise.resolve(busRouteList);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -44,12 +44,12 @@ export default function useCtbNwfbService() {
    * @param {{ [x:string]: string }} request
    * @returns {Promise<Object[]>}
    */
-  async function getBusRoute({ companyId, routeId, direction }) {
+  async function getBusRouteStopList({ companyId, routeId, direction }) {
     try {
-      let busRoute = [];
+      let busRouteStopList = [];
 
       // get bus route detail
-      const busRouteResponse = await ctbNwfbStore.getBusRouteStops(companyId, routeId, direction);
+      const busRouteResponse = await ctbNwfbStore.getBusRouteStopList(companyId, routeId, direction);
       
       // generate actions to get details of each bus stop
       const getBusStopActions = busRouteResponse
@@ -61,16 +61,16 @@ export default function useCtbNwfbService() {
       const busStopResponses = await Promise.all(getBusStopActions);
       
       // generate actions to get bus stop ETA
-      // const getBusStopEtaActions = busRouteResponse
+      // const getBusStopEtaListActions = busRouteResponse
       //   .map((
       //     /** @type {{ stop: Object; }} */ s
       //   ) => ctbNwfbStore.getBusEta(companyId, s.stop, routeId));
 
       // get bus stop ETAs
-      // const busStopEtaResponses = await Promise.all(getBusStopEtaActions);
+      // const busStopEtaResponses = await Promise.all(getBusStopEtaListActions);
 
       // map bus stop details to bus route
-      busRoute = busRouteResponse
+      busRouteStopList = busRouteResponse
         .map((
           /** @type {{ stop: Object; }} */ br
         ) => {
@@ -94,7 +94,7 @@ export default function useCtbNwfbService() {
           };
         });
 
-      return Promise.resolve(busRoute);
+      return Promise.resolve(busRouteStopList);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -105,19 +105,37 @@ export default function useCtbNwfbService() {
    * @param {{ [x:string]: string }} request
    * @returns {Promise<Object[]>}
    */
-  async function getBusStopEta({ companyId, stopId, routeId }) {
+  async function getBusStopEtaList({ companyId, stopId, routeId, direction }) {
     try {
-      const eta = await ctbNwfbStore.getBusStopEta(companyId, stopId, routeId);
-      console.log(eta);
-      return Promise.resolve(eta);
+      const response = await ctbNwfbStore.getBusStopEtaList(companyId, stopId, routeId);
+
+      let busStopEtaList = [];
+      if (response && Array.isArray(response)) {
+        // filter out null values and format ETA
+        busStopEtaList = response.filter((r) => r && r.eta);
+
+        // filter out bus stop ETAs that are not for the current direction
+        if (direction.toUpperCase() === 'INBOUND') {
+          busStopEtaList = busStopEtaList.filter((bse) => bse.dir === 'I');
+        } else if (direction.toUpperCase() === 'OUTBOUND') {
+          busStopEtaList = busStopEtaList.filter((bse) => bse.dir === 'O');
+        }
+        
+        // format ETA
+        if (busStopEtaList.length > 0) {
+          busStopEtaList = busStopEtaList.map((bse) => date.formatDate(bse.eta, 'HH:mm'));
+        }
+      }
+
+      return Promise.resolve(busStopEtaList);
     } catch (error) {
       return Promise.reject(error);
     }
   }
 
   return {
-    getBusRoutes,
-    getBusRoute,
-    getBusStopEta,
+    getBusRouteList,
+    getBusRouteStopList,
+    getBusStopEtaList,
   };
 }

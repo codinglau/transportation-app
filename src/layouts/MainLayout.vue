@@ -10,34 +10,24 @@
         <q-toolbar-title>
           {{ t(title) }}
         </q-toolbar-title>
-        <!-- <q-btn flat round
-            icon="fa-solid fa-rotate"
-            aria-label="Refresh Page">
-          <q-tooltip>刷新資料</q-tooltip>
-        </q-btn> -->
       </q-toolbar>
+     
     </q-header>
 
     <!-- footer -->
-    <q-footer bordered class="lt-md">
-      <q-toolbar class="q-pr-none">
-        <q-btn flat dense round
-            icon="menu"
-            aria-label="Menu"
-            @click="toggleLeftDrawer" />
-        
-        <q-tabs class="full-width" align="justify">
-          <q-tab icon="directions_bus" />
-          <q-tab icon="search" />
-          <q-tab icon="refresh" />
-          <q-tab icon="settings" />
-        </q-tabs>
-      </q-toolbar>
+    <q-footer bordered class="lt-md bg-transparent text-dark">
+      <!-- company tabs -->
+      <Bus.CompanyTabs mobile-arrows switch-indicator
+        class="bg-primary text-white lt-md"
+        active-bg-color="grey-2"
+        active-color="dark"
+        indicator-color="dark"
+        :options="companyList" />
     </q-footer>
 
     <!-- desktop drawer -->
     <Layout.DesktopDrawer 
-        class="gt-sm"
+        v-if="$q.screen.gt.sm"
         v-model="leftDrawerOpen"
         :loading="loadingRouteList"
         :company-list="companyList"
@@ -54,10 +44,10 @@
 
 <script setup>
 import { useMeta, useQuasar } from 'quasar';
-import { ref, computed, watchEffect } from 'vue';
+import { ref, computed, onBeforeMount, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Layout } from 'components';
+import { Bus, Layout } from 'components';
 import { useFetch } from 'src/composables';
 import { useBusService } from 'src/services';
 import { useOption } from 'src/constants';
@@ -77,7 +67,7 @@ const {
   loadingRouteList 
 } = useFetch(['loadingRouteList']);
 // use bus service
-const { getBusRoutes } = useBusService();
+const { getBusRouteList } = useBusService();
 // #endregion
 
 // define props
@@ -117,12 +107,19 @@ const routeListByLang = computed(
 
 // fetch bus route list
 function fetchRouteList(companyId) {
-  fetch(getBusRoutes, { companyId }, {
+  fetch(getBusRouteList, { companyId }, {
     config: {
       loadingScope: 'loadingRouteList',
     },
-    onSuccess(data) {
-      routeList.value = data.slice();
+    onSuccess(response) {
+      routeList.value = response.map((r) => {
+        let company = option.busCompanies.find((c) => c.value === companyId);
+        return {
+          ...r,
+          company: company.label,
+          color: company.color,
+        };
+      });
     },
   });
 }
@@ -147,31 +144,28 @@ useMeta(() => ({
 }));
 // #endregion
 
-// reset bus route list when company id changes or screen size changes
-watchEffect(() => {
-  if ($q.screen.gt.sm) {
-    // when screen becomes greater than sm, 
-    // i.e. drawer reappears and bus route list would be shown on the left drawer
-    // and current page is not the bus route list page
-    if (route.name !== 'bus.routes') {
-      // reset bus route list
-      fetchRouteList(props.companyId);
-    } else {
-      // when current page is the bus route list page
-      // wait for the company id to be updated before fetching bus routes
-      // i.e. wait for q-route-tab to switch to the correct tab first
-      setTimeout(() => {
-        fetchRouteList(props.companyId);
-      }, 200);
-    }
-  } else {
-    // when screen is less than sm
-    // i.e. drawer disappears and bus route list would be shown on the main panel
-    if (route.name === 'bus.routes') {
-      // reset bus route list
-      fetchRouteList(props.companyId);
-    }
+// reset bus route list when company id changes
+watch(() => props.companyId, () => {
+  setTimeout(() => {
+    fetchRouteList(props.companyId);
+  }, 300);
+});
+
+// watch screen size changes
+watch(() => $q.screen.gt.sm, (newVal) => {
+  if (!newVal && route.name === 'bus.routes') {
+    // if screen size is less than sm and current route is bus routes
+    // then reset bus route list
+    fetchRouteList(props.companyId);
+  } else if (newVal) {
+    // if screen size is greater than sm, reset bus route list
+    fetchRouteList(props.companyId);
   }
+});
+
+// fetch bus route list on before mount
+onBeforeMount(() => {
+  fetchRouteList(props.companyId);
 });
 </script>
 

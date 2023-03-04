@@ -31,7 +31,7 @@ export const useNlbStore = defineStore('nlb', {
     },
 
     // get bus routes from API
-    async getBusRoutes() {
+    async getBusRouteList() {
       try {
         const response = await api.get('route.php?action=list');
         return handleResponse(response);
@@ -51,7 +51,7 @@ export const useNlbStore = defineStore('nlb', {
     },
 
     // get bus route stops from API
-    async getBusRouteStops(companyId, routeId, direction) {
+    async getBusRouteStopList(companyId, routeId, direction) {
       try {
         const response = await api
           .get(`route-stop/${companyId}/${routeId}/${direction}`);

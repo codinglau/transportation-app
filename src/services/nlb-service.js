@@ -7,15 +7,15 @@ export default function useNlbService() {
   /**
    * Get bus routes for a NLB
    */
-  async function getBusRoutes() {
+  async function getBusRouteList() {
     try {
-      let busRoutes = [];
+      let busRouteList = [];
 
-      const response = await nlbStore.getBusRoutes();
+      const response = await nlbStore.getBusRouteList();
 
       if (response) {
         // map response to bus routes
-        busRoutes = response
+        busRouteList = response
           .map((
             /** @type {{ [x: string]: string; }} */ r
           ) => {
@@ -41,7 +41,7 @@ export default function useNlbService() {
               /** @type {{ id: string; }} */ sr
             ) => sr.id === br.id) === i); // filter out duplicate routes in kmb and lwb route list
       }
-      return Promise.resolve(busRoutes);
+      return Promise.resolve(busRouteList);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -51,18 +51,18 @@ export default function useNlbService() {
    * Get bus stops for a given route
    * @param {{ [x:string]: string }} request
    */
-  async function getBusRoute({ companyId, routeId, direction }) {
+  async function getBusRouteStopList({ companyId, routeId, direction }) {
     try {
-      let busRoute = [];
+      let busRouteStopList = [];
 
-      return Promise.resolve(busRoute);
+      return Promise.resolve(busRouteStopList);
     } catch (error) {
       return Promise.reject(error);
     }
   }
 
   return {
-    getBusRoutes,
-    getBusRoute,
+    getBusRouteList,
+    getBusRouteStopList,
   };
 }

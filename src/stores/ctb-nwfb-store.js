@@ -31,7 +31,7 @@ export const useCtbNwfbStore = defineStore('ctb-nwfb', {
     },
 
     // get bus routes from API
-    async getBusRoutes(companyId) {
+    async getBusRouteList(companyId) {
       try {
         const response = await api.get(`route/${companyId}`);
         return handleResponse(response);
@@ -51,7 +51,7 @@ export const useCtbNwfbStore = defineStore('ctb-nwfb', {
     },
 
     // get bus route stops from API
-    async getBusRouteStops(companyId, routeId, direction) {
+    async getBusRouteStopList(companyId, routeId, direction) {
       try {
         const response = await api
           .get(`route-stop/${companyId}/${routeId}/${direction}`);
@@ -72,7 +72,7 @@ export const useCtbNwfbStore = defineStore('ctb-nwfb', {
     },
 
     // get bus ETA from API
-    async getBusStopEta(companyId, stopId, routeId) {
+    async getBusStopEtaList(companyId, stopId, routeId) {
       try {
         const response = await api.get(`eta/${companyId}/${stopId}/${routeId}`);
         return handleResponse(response);

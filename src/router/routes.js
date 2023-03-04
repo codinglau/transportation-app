@@ -41,7 +41,7 @@ const routes = [
               {
                 path: ':routeId',
                 name: 'bus.route',
-                component: () => import('pages/bus/RoutePage.vue'),
+                component: () => import('src/pages/bus/RouteStopListPage.vue'),
                 props: (route) => ({
                   ...route.params,
                   ...route.query,

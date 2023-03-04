@@ -1,11 +1,14 @@
 <template>
-  <q-tabs active-bg-color="primary" active-color="white">
+  <q-tabs
+      align="justify"
+      active-bg-color="dark" 
+      active-color="white" 
+      indicator-color="primary">
     <q-route-tab
         v-for="tab in options"
         :key="tab.value"
         v-bind="tab"
-        :label="t(tab.label)"
-        :disable="isActiveTab(tab.value)" />
+        :label="t(tab.label)" />
   </q-tabs>
 </template>
 

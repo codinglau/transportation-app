@@ -15,9 +15,9 @@
     
     <q-card flat class="lt-md fit">
       <Bus.RouteListSkeleton v-if="loading" />
-      <Bus.RouteList 
+      <Bus.RouteList
           v-else-if="hasRoutes" 
-          :routes="filteredRoutes" />
+          :options="filteredRoutes" />
       <div v-else class="flex flex-center">
         <q-chip square 
             icon="warning"

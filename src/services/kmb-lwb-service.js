@@ -7,15 +7,15 @@ export default function useKmbLwbService() {
   /**
    * Get bus routes for a KMB/LWB
    */
-  async function getBusRoutes() {
+  async function getBusRouteList() {
     try {
-      let busRoutes = [];
+      let busRouteList = [];
 
-      const response = await kmbLwbStore.getBusRoutes();
+      const response = await kmbLwbStore.getBusRouteList();
 
       if (response) {
         // map response to bus routes
-        busRoutes = response
+        busRouteList = response
           .map((
             /** @type {{ [x: string]: string; }} */ r
           ) => ({
@@ -38,7 +38,7 @@ export default function useKmbLwbService() {
             ) => sr.id === br.id) === i); // filter out duplicate routes in kmb and lwb route list
       }
 
-      return Promise.resolve(busRoutes);
+      return Promise.resolve(busRouteList);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -48,20 +48,20 @@ export default function useKmbLwbService() {
    * Get bus stops for a given route
    * @param {{ [x:string]: string }} request
    */
-  async function getBusRoute({ companyId, routeId, direction }) {
+  async function getBusRouteStopList({ companyId, routeId, direction }) {
     try {
-      let busRoute = [];
+      let busRouteStopList = [];
 
       
 
-      return Promise.resolve(busRoute);
+      return Promise.resolve(busRouteStopList);
     } catch (error) {
       return Promise.reject(error);
     }
   }
 
   return {
-    getBusRoutes,
-    getBusRoute,
+    getBusRouteList,
+    getBusRouteStopList,
   };
 }

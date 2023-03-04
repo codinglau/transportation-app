@@ -6,13 +6,13 @@ export default function useOption() {
       { 
         value: 'kmb', 
         label: 'constant.busCompany.kmb_lwb', 
-        color: 'red',
+        color: 'red-5',
         imgSrc: 'https://upload.wikimedia.org/wikipedia/zh/thumb/3/3a/KMB_logo_%282016%29.svg/1200px-KMB_logo_%282016%29.svg.png',
       },
       { 
         value: 'nwfb', 
         label: 'constant.busCompany.nwfb',
-        color: 'yellow',
+        color: 'yellow-7',
         imgSrc: 'https://upload.wikimedia.org/wikipedia/zh/thumb/d/d1/New_World_First_Bus.svg/200px-New_World_First_Bus.svg.png',
       },
       { 

@@ -4,13 +4,21 @@
         v-for="route in options"
         :key="route.id">
       <q-item clickable 
-          active-class="bg-teal-1"
+          active-class="bg-grey-3"
           :to="viewBusRoute(route.id)">
         <q-item-section avatar>
-          <q-btn unelevated round
-              :label="route.id" 
-              color="primary"
-              text-color="white" />
+          <q-card-section 
+            class="column items-center overflow-hidden q-pa-xs">
+            <q-chip square
+                :label="t(route.company)" 
+                class="q-mt-none"
+                size="sm" />
+            <q-btn unelevated round
+                color="primary"
+                text-color="white"
+                size="md"
+                :label="route.id" />
+          </q-card-section>
         </q-item-section>
         <q-item-section class="text-center">
           <q-item-label>
@@ -29,6 +37,11 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+
+// use i18n
+const { t } = useI18n();
+
 defineProps({
   options: {
     type: Array,
@@ -41,12 +54,8 @@ defineProps({
 function viewBusRoute(routeId) {
   return {
     name: 'bus.route',
-    params: {
-      routeId: routeId,
-    },
-    query: {
-      direction: 'outbound',
-    }
+    params: { routeId: routeId },
+    query: { direction: 'outbound' }
   };
 };
 </script>

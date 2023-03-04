@@ -21,7 +21,7 @@ export const useKmbLwbStore = defineStore('kmb-lwb', {
   },
   actions: {
     // get bus routes from API
-    async getBusRoutes() {
+    async getBusRouteList() {
       try {
         const response = await api.get('route');
         return handleResponse(response);
@@ -41,7 +41,7 @@ export const useKmbLwbStore = defineStore('kmb-lwb', {
     },
 
     // get bus route stops from API
-    async getBusRouteStops(companyId, routeId, direction) {
+    async getBusRouteStopList(companyId, routeId, direction) {
       try {
         const response = await api
           .get(`route-stop/${companyId}/${routeId}/${direction}`);
