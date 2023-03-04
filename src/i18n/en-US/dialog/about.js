@@ -29,11 +29,11 @@ export default {
     createdBy: {
       caption: 'Created By',
       // https://vue-i18n.intlify.dev/guide/essentials/syntax.html#interpolations
-      label: "codinglau{'@'}gmail.com",
+      label: "{account}{'@'}{domain}",
     },
     suggestionsOrBugReport: {
       caption: 'Suggestions or Bug Report',
-      label: "codinglau{'@'}gmail.com",
+      label: "{account}{'@'}{domain}",
     },
   }
 }

@@ -51,7 +51,12 @@
                 {{ t(item.caption) }}
               </q-item-label>
               <q-item-label>
-                {{ t(item.label) }}
+                <template v-if="[ 'bugReport', 'createdBy' ].includes(item.name)">
+                  {{ t(item.label, { account: 'codinglau', domain: 'gmail.com' }) }}
+                </template>
+                <template v-else>
+                  {{ t(item.label) }}
+                </template>
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -137,11 +142,13 @@ const projectDescriptions = [
     caption: 'dialog.about.project.version.caption',
   },
   {
+    name: 'bugReport',
     icon: 'bug_report',
     label: 'dialog.about.project.suggestionsOrBugReport.label',
     caption: 'dialog.about.project.suggestionsOrBugReport.caption',
   },
   {
+    name: 'createdBy',
     imgSrc: 'https://github.com/codinglau.png',
     label: 'dialog.about.project.createdBy.label',
     caption: 'dialog.about.project.createdBy.caption',
