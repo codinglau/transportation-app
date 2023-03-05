@@ -1,20 +1,32 @@
 <template>
-  <q-page class="flex flex-center">
+  <q-page 
+      :class="{ 'flex flex-center': !loadingBusRouteStopList && isEmptyBusRouteStopList }">
     <!-- skeleton -->
-    <Bus.RouteStopListSkeleton v-if="loadingBusRouteStopList" class="col" />
+    <Bus.RouteStopListSkeleton v-if="loadingBusRouteStopList" />
 
-    <div v-else-if="!isEmptyBusRouteStopList" class="col relative-position">
+    <div v-else-if="!isEmptyBusRouteStopList" class="full-width relative-position">
       <!-- header -->
       <q-toolbar class="toolbar bg-primary text-white q-px-none q-px-md-md">
+        <!-- desktop header -->
         <q-toolbar-title class="gt-sm">
-          <q-icon name="directions_bus" color="white" />
+          <q-chip 
+              :label="routeId" 
+              icon="directions_bus"
+              color="white" 
+              text-color="primary" />
           {{ header.origin }}
           <q-icon name="keyboard_double_arrow_right" color="white" />
           {{ header.destination }}
         </q-toolbar-title>
+
+        <!-- mobile header -->
         <q-item class="lt-md text-body1 text-center full-width">
           <q-item-section avatar>
-            <q-avatar icon="directions_bus" text-color="white" />
+            <q-chip 
+                :label="routeId" 
+                icon="directions_bus"
+                color="white" 
+                text-color="primary" />
           </q-item-section>
           <q-item-section>
             <q-item-label>{{ header.origin }}</q-item-label>
@@ -61,10 +73,10 @@
     </div>
 
     <!-- empty bus route stop list -->
-    <div v-else class="fit flex flex-center">
+    <div v-else>
       <q-chip square 
           icon="warning"
-          label="No bus route stops found."
+          :label="`${routeId} No bus route stops found.`"
           color="transparent"
           text-color="primary" />
     </div>
@@ -187,13 +199,16 @@ function fetchBusRoute(companyId, routeId, direction) {
 function reverseDirections() {
   const direction = (props.direction === 'outbound') ? 'inbound' : 'outbound';
   router.push({
-    name: 'bus.route',
+    name: 'bus.routeStopList',
     params: {
       companyId: props.companyId,
       routeId: props.routeId,
     },
     query: { direction },
   });
+
+  // clear current stop
+  currentStop.value = null;
 }
 // #endregion
 

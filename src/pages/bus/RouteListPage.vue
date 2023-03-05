@@ -1,5 +1,6 @@
 <template>
-  <q-page class="flex flex-center">
+  <q-page 
+      :class="{ 'flex flex-center': !loading && isEmptyRouteList}">
     <div class="gt-sm column items-center">
       <q-avatar 
           icon="fa-solid fa-route"
@@ -16,7 +17,7 @@
     <q-card flat class="lt-md fit">
       <Bus.RouteListSkeleton v-if="loading" />
       <Bus.RouteList
-          v-else-if="hasRoutes" 
+          v-else-if="!isEmptyRouteList" 
           :options="filteredRoutes" />
       <div v-else class="flex flex-center">
         <q-chip square 
@@ -110,8 +111,8 @@ const filteredRoutes = computed(() => {
   });
 });
 
-// check if there are any routes
-const hasRoutes = computed(() => filteredRoutes.value.length > 0);
+// empty route list flag
+const isEmptyRouteList = computed(() => filteredRoutes.value.length === 0);
 </script>
 
 <style scoped lang="scss">

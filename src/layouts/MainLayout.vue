@@ -31,12 +31,25 @@
     <!-- footer -->
     <q-footer bordered class="lt-md bg-transparent text-dark">
       <!-- company tabs -->
-      <Bus.CompanyTabs mobile-arrows switch-indicator
+      <Bus.CompanyTabs outside-arrows switch-indicator
           class="bg-primary text-white lt-md"
           active-bg-color="white"
           active-color="dark"
-          indicator-color="dark"
-          :options="companyList" />
+          indicator-color="white"
+          :options="companyList">
+        <template #prepend>
+          <q-btn unelevated stretch
+              icon="fa-solid fa-gear" 
+              :aria-label="t(dialogBtnLabel)"
+              @click="isDialogOpen = true" />
+        </template>
+        <template #append>
+          <q-btn unelevated stretch
+              v-if="returnBtn.show"
+              icon="reply" 
+              :to="returnBtn.to" />
+        </template>
+      </Bus.CompanyTabs>
     </q-footer>
 
     <!-- desktop drawer -->
@@ -45,7 +58,8 @@
         v-model="leftDrawerOpen"
         :loading="loadingRouteList"
         :company-list="companyList"
-        :route-list="routeListByLang" />
+        :route-list="routeListByLang"
+        @on-dialog-open="isDialogOpen = true" />
 
     <!-- main panel -->
     <q-page-container>
@@ -53,6 +67,9 @@
           :route-list="routeListByLang" 
           :loading="loadingRouteList" />
     </q-page-container>
+
+     <!-- setting dialog -->
+     <Dialog.AboutDialog v-model="isDialogOpen" />
   </q-layout>
 </template>
 
@@ -61,7 +78,7 @@ import { useMeta, useQuasar } from 'quasar';
 import { ref, computed, onBeforeMount, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { Bus, Layout } from 'components';
+import { Bus, Dialog, Layout } from 'components';
 import { useFetch } from 'src/composables';
 import { useBusService } from 'src/services';
 import { useOption } from 'src/constants';
@@ -143,15 +160,49 @@ const isRouteListPage = computed(() => route.name === 'bus.routeList');
 // #endregion
 
 // #region Company List
-const companyList = option.busCompanies.map((c) => ({
-  ...c,
-  to: {
-    name: 'bus.routeList',
-    params: {
-      companyId: c.value,
-    },
+// when it is route stop list page, display the belonging company
+// and return to route list page button
+// otherwise, display all bus companies
+const companyList = computed(() => {
+  let companyList = option.busCompanies.map((c) => ({
+    ...c,
+    to: {
+      name: 'bus.routeList',
+      params: { companyId: c.value },
+    }
+  }));
+
+  if(route.name === 'bus.routeStopList' && $q.screen.lt.md) {
+    companyList = companyList.filter((c) => c.value === props.companyId);
   }
-}));
+
+  return companyList;
+});
+
+// return button target
+const returnBtn = computed(() => {
+  let to = null;
+  if (route.name === 'bus.routeStopList') {
+    to = {
+      name: 'bus.routeList',
+      params: {
+        lang: route.params.lang,
+        companyId: route.params.companyId,
+      },
+    }
+  }
+
+  return {
+    show: route.name === 'bus.routeStopList',
+    to,
+  };
+});
+// #endregion
+
+// #region Dialog
+// dialog open state
+const isDialogOpen = ref(false);
+const dialogBtnLabel = 'layout.tooltip.about';
 // #endregion
 
 // #region Meta

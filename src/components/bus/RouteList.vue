@@ -53,7 +53,7 @@ defineProps({
 // redirect to bus route page
 function viewBusRoute(routeId) {
   return {
-    name: 'bus.route',
+    name: 'bus.routeStopList',
     params: { routeId: routeId },
     query: { direction: 'outbound' }
   };

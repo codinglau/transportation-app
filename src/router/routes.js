@@ -40,7 +40,7 @@ const routes = [
               },
               {
                 path: ':routeId',
-                name: 'bus.route',
+                name: 'bus.routeStopList',
                 component: () => import('src/pages/bus/RouteStopListPage.vue'),
                 props: (route) => ({
                   ...route.params,

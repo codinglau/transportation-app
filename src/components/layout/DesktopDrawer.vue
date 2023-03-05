@@ -10,9 +10,9 @@
 
       <q-btn flat round dense
           icon="fa-solid fa-gear"
-          :aria-label="t(dialog.btn.label)"
-          @click="dialog.isOpen = true">
-        <q-tooltip>{{ t(dialog.btn.label) }}</q-tooltip>
+          :aria-label="t(dialogBtnLabel)"
+          @click="$emit('on-dialog-open')">
+        <q-tooltip>{{ t(dialogBtnLabel) }}</q-tooltip>
       </q-btn>
     </q-toolbar>
 
@@ -46,11 +46,6 @@
             :label="t(emptyRouteListLabel)" />
       </div>
     </q-scroll-area>
-
-    
-    
-    <!-- setting dialog -->
-    <component :is="dialog.name" v-model="dialog.isOpen" />
   </q-drawer>
 </template>
 
@@ -86,19 +81,13 @@ const props = defineProps({
 });
 
 // define emits
-defineEmits(['update:modelValue']);
+defineEmits(['update:modelValue', 'on-dialog-open']);
 
 // drawer title
 const title = 'layout.drawer.title';
 
 // #region Dialog
-const dialog = reactive({
-  isOpen: false,
-  name: markRaw(Dialog.AboutDialog),
-  btn: {
-    label: 'layout.tooltip.about',
-  },
-});
+const dialogBtnLabel = 'layout.tooltip.about';
 // #endregion
 
 // #region Search Field

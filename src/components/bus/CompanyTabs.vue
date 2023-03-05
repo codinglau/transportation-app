@@ -4,11 +4,15 @@
       active-bg-color="dark" 
       active-color="white" 
       indicator-color="primary">
+    <!-- Prepend slot -->
+    <slot name="prepend"></slot>
     <q-route-tab
         v-for="tab in options"
         :key="tab.value"
         v-bind="tab"
         :label="t(tab.label)" />
+    <!-- Append slot -->
+    <slot name="append"></slot>
   </q-tabs>
 </template>
 
@@ -28,9 +32,4 @@ defineProps({
     required: true,
   },
 });
-
-// is active tab flag
-function isActiveTab(value) {
-  return route.params.companyId === value;
-}
 </script>
