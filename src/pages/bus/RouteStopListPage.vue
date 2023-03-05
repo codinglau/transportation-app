@@ -1,12 +1,33 @@
 <template>
-  <q-page padding class="flex flex-center">
+  <q-page class="flex flex-center">
     <!-- skeleton -->
-    <Bus.RouteStopListSkeleton 
-        v-if="loadingBusRouteStopList"
-        class="col" />
+    <Bus.RouteStopListSkeleton v-if="loadingBusRouteStopList" class="col" />
 
-    <div v-else-if="!isEmptyBusRouteStopList" class="col">
-      <q-stepper animated bordered flat header-nav vertical
+    <div v-else-if="!isEmptyBusRouteStopList" class="col relative-position">
+      <!-- header -->
+      <q-toolbar class="toolbar bg-primary text-white q-px-none q-px-md-md">
+        <q-toolbar-title class="gt-sm">
+          <q-icon name="directions_bus" color="white" />
+          {{ header.origin }}
+          <q-icon name="keyboard_double_arrow_right" color="white" />
+          {{ header.destination }}
+        </q-toolbar-title>
+        <q-item class="lt-md text-body1 text-center full-width">
+          <q-item-section avatar>
+            <q-avatar icon="directions_bus" text-color="white" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ header.origin }}</q-item-label>
+            <q-item-label>{{ header.destination }}</q-item-label>
+          </q-item-section>
+          <q-item-section avatar>
+            <q-avatar icon="keyboard_double_arrow_down" text-color="white" />
+          </q-item-section>
+        </q-item>
+      </q-toolbar>
+
+      <!-- route stop list -->
+      <q-stepper animated flat header-nav vertical
           v-model="currentStop"
           ref="stepper"
           active-color="secondary"
@@ -36,17 +57,7 @@
               icon="warning" 
               label="No bus ETA available." />
         </q-step>
-        <template v-slot:message>
-          <q-toolbar class="bg-primary text-white">
-            <q-toolbar-title>
-              <q-icon name="directions_bus" color="white" />
-              {{ header.origin }}
-              <q-icon name="keyboard_double_arrow_right" color="white" />
-              {{ header.destination }}
-            </q-toolbar-title>
-          </q-toolbar>
-        </template>
-      </q-stepper>
+      </q-stepper> 
     </div>
 
     <!-- empty bus route stop list -->
@@ -166,8 +177,8 @@ function fetchBusRoute(companyId, routeId, direction) {
     config: {
       loadingScope: 'loadingBusRouteStopList',
     },
-    onSuccess(route) {
-      busRouteStopList.value = route.slice();
+    onSuccess(response) {
+      busRouteStopList.value = response.slice();
     },
   });
 }
@@ -221,14 +232,10 @@ const refreshBusStopEtaLabel = computed(() => (
 
 // refresh bus stop eta every 30 seconds
 function refreshBusStopEta() {
-  if (etaTimer) {
-    clearInterval(etaTimer);
-  }
+  if (etaTimer) clearInterval(etaTimer);
 
   etaTimer = setInterval(() => {
-    if (currentStop.value) {
-      fetchBusStopEtaList();
-    }
+    if (currentStop.value) fetchBusStopEtaList();
   }, 30000);
 }
 // #endregion
@@ -245,3 +252,15 @@ onBeforeUnmount(() => {
   }
 });
 </script>
+
+<style scoped lang="scss">
+.toolbar {
+  position: sticky;
+  top: 50px;
+  z-index: 1;
+
+  @media screen and (max-width: $breakpoint-sm-max) {
+    top: 0;
+  }
+}
+</style>

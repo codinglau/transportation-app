@@ -20,14 +20,14 @@
                 :label="route.id" />
           </q-card-section>
         </q-item-section>
-        <q-item-section class="text-center">
+        <q-item-section>
           <q-item-label>
             {{ route.origin }}
           </q-item-label>
-          <q-item-label>
-            <q-icon name="swap_vert" color="primary" />
+          <q-item-label class="text-center">
+            <q-icon name="swap_horiz" color="primary" size="sm" />
           </q-item-label>
-          <q-item-label>
+          <q-item-label class="text-right">
             {{ route.destination }}
           </q-item-label>
         </q-item-section>

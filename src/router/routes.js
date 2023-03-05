@@ -23,7 +23,7 @@ const routes = [
             path: '',
             name: 'home',
             redirect: (to) => ({
-              name: 'bus.routes',
+              name: 'bus.routeList',
               params: {
                 lang: to.params.lang,
                 companyId: to.params.companyId || 'kmb', // default to KMB
@@ -35,7 +35,7 @@ const routes = [
             children: [
               {
                 path: '',
-                name: 'bus.routes',
+                name: 'bus.routeList',
                 component: () => import('pages/bus/RouteListPage.vue'),
               },
               {
