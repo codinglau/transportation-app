@@ -1,7 +1,37 @@
 <template>
-  <q-page 
-      :class="{ 'flex flex-center': !loading && isEmptyRouteList}">
-    <div class="gt-sm column items-center">
+  <q-page class="row items-stretch">
+    <!-- header -->
+    <q-header reveal v-if="isRouteListPage" class="lt-md bg-primary">
+      <q-item dense>
+        <q-item-section avatar>
+          <q-avatar icon="swipe_right" text-color="white" />
+        </q-item-section>
+        <q-item-section class="text-center text-white">
+          <q-item-label>
+            依滑動方向選擇路線方向
+          </q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-avatar icon="swipe_left" text-color="white" />
+        </q-item-section>
+      </q-item>
+      <q-toolbar>
+        <q-input outlined dense clearable
+            v-model="searchField.value" 
+            ref="searchFieldRef"
+            debounce="300"
+            bg-color="white"
+            class="full-width"
+            clear-icon="close"
+            :placeholder="t(searchField.placeholder)">
+          <template #prepend>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </q-toolbar>
+    </q-header>
+
+    <div class="gt-sm column items-center justify-center col-12">
       <q-avatar 
           icon="fa-solid fa-route"
           text-color="primary"
@@ -14,12 +44,12 @@
           size="xl" />
     </div>
     
-    <q-card flat class="lt-md fit">
-      <Bus.RouteListSkeleton v-if="loading" />
+    <q-card flat class="lt-md col-12">
+      <Bus.RouteListSkeleton v-if="loadingRouteList" />
       <Bus.RouteList
           v-else-if="!isEmptyRouteList" 
           :options="filteredRoutes" />
-      <div v-else class="flex flex-center">
+      <div v-else class="fit flex flex-center">
         <q-chip square 
             icon="warning"
             :label="t(data.noDataLabel)"
@@ -27,53 +57,32 @@
             text-color="primary" />
       </div>
     </q-card>
-
-    <template v-if="!loading && $q.screen.lt.md">
-      <q-page-sticky position="bottom-right" :offset="[18, 18]">
-        <q-btn fab 
-            :icon="searchField.isActive ? 'clear' : 'search'"
-            color="secondary"
-            @click="toggleSearchField" />
-      </q-page-sticky>
-      <q-page-sticky position="bottom-right" :offset="[80, 18]">
-        <q-input outlined
-            v-model="searchField.value" 
-            ref="searchFieldRef"
-            debounce="300"
-            :placeholder="t(searchField.placeholder)"
-            :class="searchFieldClasses" />
-      </q-page-sticky>
-    </template>
   </q-page>
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, inject } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 import { Bus } from 'components';
 
 // use i18n
 const { t } = useI18n();
+// use route
+const route = useRoute();
 
-// define props
-const props = defineProps({
-  loading: {
-    type: Boolean,
-    default: false,
-    required: true,
-  },
-  routeList: {
-    type: Array,
-    default: () => [],
-    required: true,
-  },
-});
+// inject route list and loadingRouteList flag
+const routeList = inject('routeList');
+const loadingRouteList = inject('loadingRouteList');
+
+// is route list page flag
+const isRouteListPage = computed(() => route.name === 'bus.routeList');
 
 // data
-const data = reactive({
+const data = {
   yetToSelectLabel: 'page.routeList.yetToSelect',
   noDataLabel: 'layout.drawer.noData',
-});
+};
 
 // #region Search Field
 const searchFieldRef = ref(null);
@@ -83,29 +92,16 @@ const searchField = reactive({
   value: '',
   placeholder: 'layout.drawer.search',
 });
-
-// toggle search field
-function toggleSearchField() {
-  searchField.isActive = !searchField.isActive;
-  if (searchField.isActive) searchFieldRef.value.focus();
-  else searchField.value = '';
-};
-
-// toggle search field classes
-const searchFieldClasses = computed(() => ({
-  'bg-white search-field': true,
-  'active': searchField.isActive,
-}));
 // #endregion
 
 /** computed properties */
 // filter routes
 const filteredRoutes = computed(() => {
   // if no search value, return all routes
-  if (!searchField.value) return props.routeList;
+  if (!searchField.value) return routeList.value;
 
   // else filter routes by search value
-  return props.routeList.filter((r) => {
+  return routeList.value.filter((r) => {
     const target = [r.id, r.origin, r.destination].join(' ').toUpperCase();
     return target.includes(searchField.value.toUpperCase());
   });
@@ -118,12 +114,12 @@ const isEmptyRouteList = computed(() => filteredRoutes.value.length === 0);
 <style scoped lang="scss">
 .search-field {
   opacity: 0;
-  width: 0;
-  transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  display: none;
+  transition: opacity 0.3s ease-in-out;
 }
 
 .active {
   opacity: 1;
-  width: calc(100vw - 98px);
+  display: block;
 }
 </style>

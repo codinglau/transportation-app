@@ -1,8 +1,8 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <!-- header -->
-    <q-header :reveal="$q.screen.lt.md">
-      <q-toolbar class="gt-sm">
+    <q-header class="gt-sm">
+      <q-toolbar>
         <q-btn flat dense round
             icon="menu"
             aria-label="Menu"
@@ -11,21 +11,6 @@
           {{ t(title) }}
         </q-toolbar-title>
       </q-toolbar>
-
-      <!-- display only route list page -->
-      <q-item dense v-if="isRouteListPage" class="lt-md bg-primary">
-        <q-item-section avatar>
-          <q-avatar icon="swipe_right" text-color="white" />
-        </q-item-section>
-        <q-item-section class="text-center text-white">
-          <q-item-label>
-            依滑動方向選擇路線方向
-          </q-item-label>
-        </q-item-section>
-        <q-item-section avatar>
-          <q-avatar icon="swipe_left" text-color="white" />
-        </q-item-section>
-      </q-item>
     </q-header>
 
     <!-- footer -->
@@ -33,8 +18,7 @@
       <!-- company tabs -->
       <Bus.CompanyTabs outside-arrows switch-indicator
           class="bg-primary text-white lt-md"
-          active-bg-color="white"
-          active-color="dark"
+          active-bg-color="primary"
           indicator-color="white"
           :options="companyList">
         <template #prepend>
@@ -63,9 +47,7 @@
 
     <!-- main panel -->
     <q-page-container>
-      <router-view 
-          :route-list="routeListByLang" 
-          :loading="loadingRouteList" />
+      <router-view />
     </q-page-container>
 
      <!-- setting dialog -->
@@ -75,7 +57,7 @@
 
 <script setup>
 import { useMeta, useQuasar } from 'quasar';
-import { ref, computed, onBeforeMount, watch } from 'vue';
+import { ref, computed, onBeforeMount, watch, provide } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { Bus, Dialog, Layout } from 'components';
@@ -135,6 +117,9 @@ const routeListByLang = computed(
     destination: r.destination[props.lang],
   }))
 );
+// provide bus route list to child component
+provide('routeList', routeListByLang);
+provide('loadingRouteList', loadingRouteList);
 
 // fetch bus route list
 function fetchRouteList(companyId) {
@@ -154,9 +139,6 @@ function fetchRouteList(companyId) {
     },
   });
 }
-
-// route list page flag
-const isRouteListPage = computed(() => route.name === 'bus.routeList');
 // #endregion
 
 // #region Company List

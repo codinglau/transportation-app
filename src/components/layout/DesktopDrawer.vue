@@ -22,7 +22,7 @@
         :options="companyList" />
 
     <!-- drawer search -->
-    <q-input outlined dense clearable
+    <q-input dense clearable
         v-model.trim="searchField.value"
         clear-icon="close"
         debounce="300"
@@ -51,7 +51,7 @@
 
 <script setup>
 import { reactive, computed, markRaw } from 'vue';
-import { Bus, Dialog } from 'components';
+import { Bus } from 'components';
 import { useI18n } from 'vue-i18n';
 
 // use i18n

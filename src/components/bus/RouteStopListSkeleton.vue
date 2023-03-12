@@ -1,6 +1,5 @@
 <template>
-  <q-list bordered class="rounded-borders no-padding">
-    <q-skeleton type="QToolbar" />
+  <q-list bordered separator class="rounded-borders no-padding">
     <q-item v-for="i in 20" :key="i">
       <q-item-section avatar>
         <q-skeleton type="QAvatar" />

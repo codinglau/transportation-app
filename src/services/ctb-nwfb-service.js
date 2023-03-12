@@ -6,7 +6,22 @@ export default function useCtbNwfbService() {
   const ctbNwfbStore = useCtbNwfbStore();
 
   /**
-   * Get bus routes for a CTB/NWFB
+   * Get a bus route info, e.g. origin, destination, etc.
+   * @param {{ [x:string]: string }} request
+   * @returns {Promise<Object>}
+   */
+  async function getBusRoute({ companyId, routeId }) {
+    try {
+      const response = await ctbNwfbStore.getBusRoute(companyId, routeId);
+
+      return Promise.resolve(response);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  /**
+   * Get bus route list for CTB/NWFB
    * @param {{ [x:string]: string }} request
    * @returns {Promise<Object[]>}
    */
@@ -40,60 +55,57 @@ export default function useCtbNwfbService() {
   }
 
   /**
-   * Get bus stops for a given route
+   * Get bus stop list for a given route
    * @param {{ [x:string]: string }} request
-   * @returns {Promise<Object[]>}
+   * @returns {Promise<Object>}
    */
-  async function getBusRouteStopList({ companyId, routeId, direction }) {
+  async function getBusRouteStopList({ companyId, routeId }) {
     try {
-      let busRouteStopList = [];
+      const busRouteStopList = {
+        inbound: [],
+        outbound: [],
+      };
 
-      // get bus route detail
-      const busRouteResponse = await ctbNwfbStore.getBusRouteStopList(companyId, routeId, direction);
+      // get both inbound and outbound bus stop lists
+      const busRouteStopListActions = Object.keys(busRouteStopList)
+        .map((d) => ctbNwfbStore.getBusRouteStopList(companyId, routeId, d));
+
+      const busRouteStopListResponses = await Promise.all(busRouteStopListActions);
       
-      // generate actions to get details of each bus stop
-      const getBusStopActions = busRouteResponse
+      // 1. merge inbound and outbound bus stop lists
+      // 2. filtter out duplicate bus stops
+      // 3. map bus stop actions to bus stop list
+      const busStopActions= busRouteStopListResponses
+        .flatMap((r) => r)
+        .filter((s, i, o) => o.findIndex((t) => (t.stop === s.stop)) === i)
         .map((
           /** @type {{ stop: Object; }} */ s
         ) => ctbNwfbStore.getBusStop(s.stop));
-
+        
       // get bus stop details
-      const busStopResponses = await Promise.all(getBusStopActions);
-      
-      // generate actions to get bus stop ETA
-      // const getBusStopEtaListActions = busRouteResponse
-      //   .map((
-      //     /** @type {{ stop: Object; }} */ s
-      //   ) => ctbNwfbStore.getBusEta(companyId, s.stop, routeId));
-
-      // get bus stop ETAs
-      // const busStopEtaResponses = await Promise.all(getBusStopEtaListActions);
+      const busStopResponses = await Promise.all(busStopActions);
 
       // map bus stop details to bus route
-      busRouteStopList = busRouteResponse
-        .map((
-          /** @type {{ stop: Object; }} */ br
-        ) => {
-          // find bus stop
-          const busStop = busStopResponses
-            .find((bs) => bs.stop === br.stop);
+      for (const key in busRouteStopList) {
+        const directionIdx = key === 'inbound' ? 0 : 1;
+        busRouteStopList[key] = busRouteStopListResponses[directionIdx]
+          .map((
+            /** @type {{ stop: Object; }} */ br
+          ) => {
+            // find bus stop
+            const busStop = busStopResponses
+              .find((
+                /** @type {{ stop: any; }} */ bs
+              ) => bs.stop === br.stop);
 
-          // find bus stop ETA
-          // const busStopEtas = busStopEtaResponses
-          //   .flatMap((bse) => bse)  // flatten array
-          //   .filter((bse) => bse.stop === br.stop)  // filter out bus stop ETAs that are not for the current bus stop
-          //   .filter((bse) => direction.slice(0, 1).toUpperCase() === bse.dir) // filter out bus stop ETAs that are not for the current direction
-          //   .filter((bse) => bse.eta) // filter out bus stop ETAs that are not available
-          //   .map((bse) => date.formatDate(bse.eta, 'HH:mm')); // format ETA
-
-          return {
-            ...br,
-            tc: busStop?.name_tc,
-            en: busStop?.name_en,
-            // eta: busStopEtas,
-          };
-        });
-
+            return {
+              ...br,
+              tc: busStop?.name_tc,
+              en: busStop?.name_en,
+            };
+          });
+      }
+      
       return Promise.resolve(busRouteStopList);
     } catch (error) {
       return Promise.reject(error);
@@ -134,6 +146,7 @@ export default function useCtbNwfbService() {
   }
 
   return {
+    getBusRoute,
     getBusRouteList,
     getBusRouteStopList,
     getBusStopEtaList,

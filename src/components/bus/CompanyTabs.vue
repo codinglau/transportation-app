@@ -1,7 +1,7 @@
 <template>
   <q-tabs
       align="justify"
-      active-bg-color="dark" 
+      active-bg-color="primary" 
       active-color="white" 
       indicator-color="primary">
     <!-- Prepend slot -->

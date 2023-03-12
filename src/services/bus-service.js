@@ -10,6 +10,20 @@ export default function useBusService() {
   const nlbService = useNlbService();
 
   /**
+   * Get a bus route info, e.g. origin, destination, etc.
+   * @param {{ [x:string]: string }} request
+   * @returns {Promise<Object>}
+   */
+  async function getBusRoute({ companyId, routeId }) {
+    try {
+      const response = await ctbNwfbService.getBusRoute({ companyId, routeId });
+      return Promise.resolve(response);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  /**
    * Get bus routes for a given company
    * @param {{ [x:string]: string }} request
    * @returns {Promise<Array>}
@@ -36,18 +50,20 @@ export default function useBusService() {
    * @param {{ [x:string]: string }} request
    * @returns {Promise<Array>}
    */
-  async function getBusRouteStopList({ companyId, routeId, direction }) {
+  async function getBusRouteStopList({ companyId, routeId }) {
     try {
       let busRouteStopList = [];
 
       if (['nwfb', 'ctb'].includes(companyId)) {
-        busRouteStopList = await ctbNwfbService.getBusRouteStopList({ companyId, routeId, direction });
+        busRouteStopList = await ctbNwfbService
+          .getBusRouteStopList({ companyId, routeId });
       }
 
       return Promise.resolve(busRouteStopList);
     } catch (error) {
       return Promise.reject(error);
     }
+
   }
 
   /**
@@ -70,6 +86,7 @@ export default function useBusService() {
   }
 
   return {
+    getBusRoute,
     getBusRouteList,
     getBusRouteStopList,
     getBusStopEtaList,

@@ -1,5 +1,5 @@
 <template>
-  <q-list separator>
+  <q-list bordered separator>
     <q-slide-item 
         v-for="route in options"
         :key="route.id">

@@ -2,8 +2,8 @@
   <q-dialog persistent
       :model-value="modelValue"
       @update:model-value="(value) => $emit('update:modelValue', value)">
-    <q-card class="dialog">
-      <q-toolbar class="bg-primary text-white justify-between">
+    <q-card class="dialog relative-position">
+      <q-toolbar class="toolbar bg-primary text-white justify-between">
         <q-toolbar-title>{{ t(dialogTitle) }}</q-toolbar-title>
         <q-btn flat round dense v-close-popup
             icon="close"
@@ -178,5 +178,11 @@ function setLanguage(value) {
 .dialog {
   width: 600px;
   max-width: 90vw;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 </style>

@@ -31,7 +31,7 @@ const routes = [
             }),
           },
           {
-            path: 'bus/:companyId',
+            path: ':companyId',
             children: [
               {
                 path: '',
